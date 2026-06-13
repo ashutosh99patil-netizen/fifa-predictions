@@ -1507,15 +1507,9 @@
       call: function (funcName, args, successCallback, failureCallback) {
         // 1. If API_URL is configured, use the Web App JSON API (ideal for GitHub Pages)
         if (typeof API_URL !== 'undefined' && API_URL && API_URL.trim() !== "") {
-          fetch(API_URL, {
-            method: "POST",
-            headers: {
-              "Content-Type": "text/plain"
-            },
-            body: JSON.stringify({
-              functionName: funcName,
-              arguments: args
-            })
+          const url = API_URL + "?action=" + encodeURIComponent(funcName) + "&args=" + encodeURIComponent(JSON.stringify(args));
+          fetch(url, {
+            method: "GET"
           })
             .then(response => {
               if (!response.ok) {
