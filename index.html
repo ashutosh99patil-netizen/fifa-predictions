@@ -808,6 +808,62 @@
         padding-bottom: 20px;
       }
     }
+
+    /* Modal Overlay & Dialog Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+      animation: scaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes scaleUp {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 10px;
+    }
+    .modal-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+    .close-btn:hover {
+      color: var(--danger);
+    }
   </style>
 </head>
 
@@ -909,10 +965,16 @@
             <div class="stat-badge pts" id="display-user-points">0 Pts</div>
             <div class="stat-badge coins" id="display-user-coins">100 🪙</div>
           </div>
+          <!-- Settings Icon for Password Change -->
+          <button class="btn btn-secondary" onclick="openPasswordModal()" style="padding: 6px; border-radius: 8px; margin-right: 4px;" title="Change Password">
+            <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: var(--text-muted);">
+              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            </svg>
+          </button>
+          <!-- Logout Icon -->
           <button class="btn btn-secondary" onclick="logout()" style="padding: 6px; border-radius: 8px;">
             <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: var(--text-muted);">
-              <path
-                d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L13.67 11H3v2h10.67zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+              <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L13.67 11H3v2h10.67zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
             </svg>
           </button>
         </div>
@@ -1212,31 +1274,6 @@
           </div>
         </div>
 
-        <!-- Account Settings Card (Change Password) -->
-        <div class="card">
-          <div class="card-title">
-            <div class="card-title-icon">
-              <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:var(--accent-secondary);">
-                <path
-                  d="M12.85 2.51l.08.09 7.07 7.07c.39.39.39 1.02 0 1.41l-7.07 7.07a1 1 0 0 1-1.42 0l-7.07-7.07a1 1 0 0 1 0-1.41l7.07-7.07c.39-.39 1.03-.39 1.42 0zm-1.41 12.02V17h2v-2.47c-.49-.49-2-.49-2 0z" />
-              </svg>
-              Account Settings - Change Password
-            </div>
-          </div>
-          <div class="prediction-inputs-box">
-            <div class="form-group">
-              <label for="change-pass-old">Current Password</label>
-              <input type="password" id="change-pass-old" class="form-control" placeholder="••••••••">
-            </div>
-            <div class="form-group">
-              <label for="change-pass-new">New Password</label>
-              <input type="password" id="change-pass-new" class="form-control" placeholder="••••••••">
-            </div>
-            <button class="btn btn-secondary" onclick="submitChangePassword()" style="width: 100%;">
-              Update Password
-            </button>
-          </div>
-        </div>
       </div>
 
       <!-- VIEW: ADMIN PANEL & GAME SIMULATOR -->
@@ -1387,6 +1424,9 @@
                 <!-- Loaded dynamically -->
               </select>
             </div>
+            <button class="btn btn-secondary" onclick="adminFetchFromAPIFootball()" style="width: 100%; margin-bottom: 16px;">
+              🔄 Auto-Fetch from API-Football
+            </button>
             <div class="form-row">
               <div class="form-group">
                 <label for="admin-score-t1">Actual Team 1 Goals</label>
@@ -1460,8 +1500,37 @@
       "USA": ["Christian Pulisic", "Weston McKennie", "Timothy Weah", "Folarin Balogun", "Tyler Adams", "Sergino Dest", "Matt Turner"],
       "Paraguay": ["Miguel Almiron", "Julio Enciso", "Antonio Sanabria", "Gustavo Gomez", "Mathias Villasanti", "Junior Alonso", "Carlos Coronel"],
       "France": ["Kylian Mbappé", "Antoine Griezmann", "Ousmane Dembélé", "Aurélien Tchouaméni", "Eduardo Camavinga", "Theo Hernandez", "Mike Maignan"],
-      "Brazil": ["Vinicius Jr", "Rodrygo Goes", "Lucas Paquetá", "Bruno Guimaraes", "Marquinhos", "Danilo Luiz", "Ederson Moraes"]
+      "Brazil": ["Vinicius Jr", "Rodrygo Goes", "Lucas Paquetá", "Bruno Guimaraes", "Marquinhos", "Danilo Luiz", "Ederson Moraes"],
+      "Argentina": ["Lionel Messi", "Lautaro Martinez", "Julian Alvarez", "Alexis Mac Allister", "Enzo Fernandez", "Rodrigo De Paul", "Emiliano Martinez"],
+      "Germany": ["Florian Wirtz", "Jamal Musiala", "Kai Havertz", "Ilkay Gündogan", "Joshua Kimmich", "Antonio Rüdiger", "Marc-André ter Stegen"],
+      "Spain": ["Lamine Yamal", "Nico Williams", "Rodri Hernandez", "Alvaro Morata", "Pedri Gonzalez", "Dani Carvajal", "Unai Simón"],
+      "Portugal": ["Cristiano Ronaldo", "Bruno Fernandes", "Bernardo Silva", "Rafael Leão", "João Félix", "Rúben Dias", "Diogo Costa"],
+      "Uruguay": ["Darwin Núñez", "Federico Valverde", "Ronald Araújo", "Rodrigo Bentancur", "Facundo Pellistri", "Giorgian de Arrascaeta", "Sergio Rochet"],
+      "Netherlands": ["Memphis Depay", "Cody Gakpo", "Frenkie de Jong", "Virgil van Dijk", "Nathan Aké", "Denzel Dumfries", "Bart Verbruggen"],
+      "Italy": ["Federico Chiesa", "Nicolò Barella", "Gianluca Scamacca", "Davide Frattesi", "Alessandro Bastoni", "Giovanni Di Lorenzo", "Gianluigi Donnarumma"],
+      "Croatia": ["Luka Modrić", "Mateo Kovačić", "Andrej Kramarić", "Marcelo Brozović", "Ivan Perišić", "Joško Gvardiol", "Dominik Livaković"],
+      "Japan": ["Kaoru Mitoma", "Takefusa Kubo", "Wataru Endo", "Ritsu Doan", "Daichi Kamada", "Ko Itakura", "Zion Suzuki"],
+      "Morocco": ["Achraf Hakimi", "Hakim Ziyech", "Youssef En-Nesyri", "Sofyan Amrabat", "Azzedine Ounahi", "Nayef Aguerd", "Yassine Bounou"],
+      "Mexico": ["Santiago Giménez", "Hirving Lozano", "Edson Álvarez", "Luis Chávez", "Orbelín Pineda", "César Montes", "Guillermo Ochoa"],
+      "Belgium": ["Kevin De Bruyne", "Romelu Lukaku", "Jeremy Doku", "Leandro Trossard", "Amadou Onana", "Wout Faes", "Koen Casteels"],
+      "Senegal": ["Sadio Mané", "Nicolas Jackson", "Ismaïla Sarr", "Pape Matar Sarr", "Idrissa Gueye", "Kalidou Koulibaly", "Édouard Mendy"]
     };
+
+    // Country flags mapping (flagcdn code)
+    const TEAM_FLAG_MAP = {
+      "Canada": "ca", "Bosnia": "ba", "USA": "us", "Paraguay": "py", "France": "fr", "Brazil": "br",
+      "Argentina": "ar", "England": "gb-eng", "Spain": "es", "Portugal": "pt", "Germany": "de",
+      "Uruguay": "uy", "Netherlands": "nl", "Italy": "it", "Croatia": "hr", "Japan": "jp",
+      "Morocco": "ma", "Mexico": "mx", "Belgium": "be", "Senegal": "sn"
+    };
+
+    function getTeamFlagHTML(teamName) {
+      const code = TEAM_FLAG_MAP[teamName];
+      if (code) {
+        return `<img src="https://flagcdn.com/w40/${code}.png" style="width: 20px; height: 13px; border-radius: 2px; vertical-align: middle; margin-right: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);" />`;
+      }
+      return '';
+    }
 
     /**
      * Local Storage Mock Database Engine (Runs when google.script.run is not present)
@@ -1487,9 +1556,14 @@
           ]));
 
           localStorage.setItem("fifa_matches", JSON.stringify([
-            { matchId: "M_001", stage: "Group Stage", team1: "Canada", team2: "Bosnia", time: new Date(Date.now() + 86400000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
-            { matchId: "M_002", stage: "Group Stage", team1: "USA", team2: "Paraguay", time: new Date(Date.now() + 172800000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
-            { matchId: "M_003", stage: "Group Stage", team1: "France", team2: "Brazil", time: new Date(Date.now() + 259200000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" }
+            { matchId: "M_001", stage: "Group A", team1: "Mexico", team2: "Senegal", time: new Date(Date.now() + 86400000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
+            { matchId: "M_002", stage: "Group A", team1: "USA", team2: "Japan", time: new Date(Date.now() + 172800000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
+            { matchId: "M_003", stage: "Group B", team1: "Canada", team2: "Croatia", time: new Date(Date.now() + 259200000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
+            { matchId: "M_004", stage: "Group B", team1: "France", team2: "Brazil", time: new Date(Date.now() + 345600000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
+            { matchId: "M_005", stage: "Group C", team1: "Argentina", team2: "Italy", time: new Date(Date.now() + 432000000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
+            { matchId: "M_006", stage: "Group C", team1: "Spain", team2: "Germany", time: new Date(Date.now() + 518400000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
+            { matchId: "M_007", stage: "Group D", team1: "Portugal", team2: "Uruguay", time: new Date(Date.now() + 604800000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
+            { matchId: "M_008", stage: "Group D", team1: "Belgium", team2: "Morocco", time: new Date(Date.now() + 691200000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" }
           ]));
 
           localStorage.setItem("fifa_predictions", JSON.stringify([]));
@@ -1573,9 +1647,14 @@
         firebaseDB.ref("matches").once("value").then(snapshot => {
           if (!snapshot.exists()) {
             const defaultMatches = {
-              "M_001": { matchId: "M_001", stage: "Group Stage", team1: "Canada", team2: "Bosnia", time: new Date(Date.now() + 86400000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" },
-              "M_002": { matchId: "M_002", stage: "Group Stage", team1: "USA", team2: "Paraguay", time: new Date(Date.now() + 172800000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" },
-              "M_003": { matchId: "M_003", stage: "Group Stage", team1: "France", team2: "Brazil", time: new Date(Date.now() + 259200000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" }
+              "M_001": { matchId: "M_001", stage: "Group A", team1: "Mexico", team2: "Senegal", time: new Date(Date.now() + 86400000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" },
+              "M_002": { matchId: "M_002", stage: "Group A", team1: "USA", team2: "Japan", time: new Date(Date.now() + 172800000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" },
+              "M_003": { matchId: "M_003", stage: "Group B", team1: "Canada", team2: "Croatia", time: new Date(Date.now() + 259200000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" },
+              "M_004": { matchId: "M_004", stage: "Group B", team1: "France", team2: "Brazil", time: new Date(Date.now() + 345600000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" },
+              "M_005": { matchId: "M_005", stage: "Group C", team1: "Argentina", team2: "Italy", time: new Date(Date.now() + 432000000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" },
+              "M_006": { matchId: "M_006", stage: "Group C", team1: "Spain", team2: "Germany", time: new Date(Date.now() + 518400000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" },
+              "M_007": { matchId: "M_007", stage: "Group D", team1: "Portugal", team2: "Uruguay", time: new Date(Date.now() + 604800000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" },
+              "M_008": { matchId: "M_008", stage: "Group D", team1: "Belgium", team2: "Morocco", time: new Date(Date.now() + 691200000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" }
             };
             firebaseDB.ref("matches").set(defaultMatches);
           }
@@ -1588,7 +1667,11 @@
         switch (funcName) {
           case 'getActiveUserSession':
             return new Promise((resolve, reject) => {
-              let activeId = localStorage.getItem("mock_active_userid") || "U_001";
+              let activeId = localStorage.getItem("mock_active_userid");
+              if (!activeId) {
+                resolve({ loggedIn: false, isAdmin: false });
+                return;
+              }
               firebaseDB.ref("users/" + activeId).once("value").then(snapshot => {
                 let user = snapshot.val();
                 if (user) {
@@ -2104,9 +2187,13 @@
 
         switch (funcName) {
           case 'getActiveUserSession':
-            let activeId = localStorage.getItem("mock_active_userid") || "U_001";
+            let activeId = localStorage.getItem("mock_active_userid");
+            if (!activeId) {
+              return { loggedIn: false, isAdmin: false };
+            }
             let users = MOCK_DB.getTable("fifa_users");
             let user = users.find(u => u.userId === activeId);
+            if (!user) return { loggedIn: false, isAdmin: false };
             return {
               loggedIn: true,
               userId: user.userId,
@@ -2603,38 +2690,100 @@
       showView("dashboard");
     }
 
+    function fetchLiveScoresFromAPI(apiKey) {
+      const url = 'https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all';
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': apiKey,
+          'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+        }
+      })
+      .then(res => res.json())
+      .then(json => {
+        if (json && json.response && json.response.length > 0) {
+          server.call('getMatchesData', [], function (dbMatches) {
+            // Filter live matches for matches that exist in our database
+            const liveMatches = json.response.filter(f => {
+              const homeName = f.teams.home.name.toLowerCase();
+              const awayName = f.teams.away.name.toLowerCase();
+              return dbMatches.some(m => 
+                (m.team1.toLowerCase().includes(homeName) || homeName.includes(m.team1.toLowerCase())) &&
+                (m.team2.toLowerCase().includes(awayName) || awayName.includes(m.team2.toLowerCase()))
+              );
+            });
+
+            if (liveMatches.length > 0) {
+              const ticker = document.getElementById("live-ticker");
+              ticker.innerHTML = liveMatches.map(f => {
+                const homeName = f.teams.home.name;
+                const awayName = f.teams.away.name;
+                const homeScore = f.goals.home ?? 0;
+                const awayScore = f.goals.away ?? 0;
+                const stage = f.league.round || "Live";
+                const elapsed = f.fixture.status.elapsed || "";
+                return `
+                  <div class="ticker-card" style="border-color: var(--accent-secondary); box-shadow: var(--glow-cyan);">
+                    <div class="ticker-status">
+                      <span class="live-dot">LIVE ${elapsed ? elapsed + "'" : ""} - ${stage}</span>
+                      <span>API ID: ${f.fixture.id}</span>
+                    </div>
+                    <div class="ticker-teams">
+                      <span>${getTeamFlagHTML(homeName)}${homeName}</span>
+                      <span class="ticker-score">${homeScore} - ${awayScore}</span>
+                      <span>${getTeamFlagHTML(awayName)}${awayName}</span>
+                    </div>
+                  </div>
+                `;
+              }).join("");
+            }
+          });
+        }
+      })
+      .catch(err => console.error("Error fetching live scores from API:", err));
+    }
+
     /**
      * Dashboard View logic
      */
     function loadDashboardData() {
-      // 1. Load Live matches ticker
-      server.call('getMatchesData', [], function (matches) {
-        const liveMatches = matches.filter(m => m.status === 'Live');
-        const ticker = document.getElementById("live-ticker");
+      server.call('getSystemRules', [], function (rules) {
+        const apiKey = rules["RapidAPI_Key"] || "";
 
-        if (liveMatches.length === 0) {
-          ticker.innerHTML = '<div style="color:var(--text-muted); font-size:13px; padding: 10px;">No live matches currently.</div>';
-        } else {
-          ticker.innerHTML = liveMatches.map(m => `
-            <div class="ticker-card">
-              <div class="ticker-status">
-                <span class="live-dot">LIVE - ${m.stage}</span>
-                <span>ID: ${m.matchId}</span>
-              </div>
-              <div class="ticker-teams">
-                <span>${m.team1}</span>
-                <span class="ticker-score">${m.t1Goals ?? 0} - ${m.t2Goals ?? 0}</span>
-                <span>${m.team2}</span>
-              </div>
-            </div>
-          `).join("");
-        }
+        // 1. Load Live matches ticker
+        server.call('getMatchesData', [], function (matches) {
+          const liveMatches = matches.filter(m => m.status === 'Live');
+          const ticker = document.getElementById("live-ticker");
 
-        // Fill simulation match dropdown if admin
-        if (currentUserSession.isAdmin && localModeActive) {
-          let simSelect = document.getElementById("sim-match-select");
-          simSelect.innerHTML = matches.map(m => `<option value="${m.matchId}">${m.team1} vs ${m.team2} (${m.status})</option>`).join("");
-        }
+          if (liveMatches.length === 0) {
+            ticker.innerHTML = '<div style="color:var(--text-muted); font-size:13px; padding: 10px;">No live matches currently.</div>';
+          } else {
+            ticker.innerHTML = liveMatches.map(m => `
+              <div class="ticker-card">
+                <div class="ticker-status">
+                  <span class="live-dot">LIVE - ${m.stage}</span>
+                  <span>ID: ${m.matchId}</span>
+                </div>
+                <div class="ticker-teams">
+                  <span>${getTeamFlagHTML(m.team1)}${m.team1}</span>
+                  <span class="ticker-score">${m.t1Goals ?? 0} - ${m.t2Goals ?? 0}</span>
+                  <span>${getTeamFlagHTML(m.team2)}${m.team2}</span>
+                </div>
+              </div>
+            `).join("");
+          }
+
+          // If API Key is present, trigger client-side fetch to load live data
+          if (apiKey && apiKey.trim() !== "") {
+            fetchLiveScoresFromAPI(apiKey);
+          }
+
+          // Fill simulation match dropdown if admin
+          if (currentUserSession.isAdmin && localModeActive) {
+            let simSelect = document.getElementById("sim-match-select");
+            simSelect.innerHTML = matches.map(m => `<option value="${m.matchId}">${m.team1} vs ${m.team2} (${m.status})</option>`).join("");
+          }
+        });
       });
 
       // 2. Load Leaderboard table
@@ -2711,7 +2860,7 @@
           <td><strong>${p.matchId}</strong></td>
           <td><span style="font-size:12px; color:var(--text-muted);">${p.stage}</span></td>
           <td><span style="font-size:12px; color:var(--text-muted);">${new Date(p.time).toLocaleDateString()}</span></td>
-          <td><strong>${p.team1} v ${p.team2}</strong></td>
+          <td><strong>${getTeamFlagHTML(p.team1)}${p.team1} v ${getTeamFlagHTML(p.team2)}${p.team2}</strong></td>
           <td style="font-weight:600;">${p.userName}</td>
           <td><span class="status-badge open" style="padding: 2px 6px;">${p.winner}</span></td>
           <td><strong>${p.t1Goals} - ${p.t2Goals}</strong></td>
@@ -2758,9 +2907,9 @@
                 </div>
                 
                 <div class="match-teams-grid">
-                  <div class="match-team">${m.team1}</div>
+                  <div class="match-team">${getTeamFlagHTML(m.team1)}${m.team1}</div>
                   <div class="match-vs">VS</div>
-                  <div class="match-team">${m.team2}</div>
+                  <div class="match-team">${getTeamFlagHTML(m.team2)}${m.team2}</div>
                 </div>
 
                 <div style="font-size:12px; color:var(--text-muted); text-align:center;">
@@ -2781,11 +2930,11 @@
                   <div class="form-group">
                     <label>Predict Exact Scoreline</label>
                     <div class="goal-inputs">
-                      <span>${m.team1}</span>
+                      <span>${getTeamFlagHTML(m.team1)}${m.team1}</span>
                       <input type="number" id="t1-${m.matchId}" class="form-control" min="0" value="${pred.t1Goals}" ${hasStarted ? 'disabled' : ''}>
                       <span>-</span>
                       <input type="number" id="t2-${m.matchId}" class="form-control" min="0" value="${pred.t2Goals}" ${hasStarted ? 'disabled' : ''}>
-                      <span>${m.team2}</span>
+                      <span>${getTeamFlagHTML(m.team2)}${m.team2}</span>
                     </div>
                   </div>
 
@@ -2996,7 +3145,7 @@
             return `
               <tr>
                 <td>${t.matchId} ${statusSymbol}</td>
-                <td><strong>${m.team1} vs ${m.team2}</strong></td>
+                <td><strong>${getTeamFlagHTML(m.team1)}${m.team1} vs ${getTeamFlagHTML(m.team2)}${m.team2}</strong></td>
                 <td>${t.winner}</td>
                 <td>${t.t1Goals} - ${t.t2Goals} (Actual: ${m.t1Goals ?? '-'} - ${m.t2Goals ?? '-'})</td>
                 <td>${t.ou} 2.5</td>
@@ -3009,6 +3158,16 @@
           }).join("");
         });
       });
+    }
+
+    function openPasswordModal() {
+      document.getElementById("change-pass-old").value = "";
+      document.getElementById("change-pass-new").value = "";
+      document.getElementById("password-modal").style.display = "flex";
+    }
+
+    function closePasswordModal() {
+      document.getElementById("password-modal").style.display = "none";
     }
 
     function submitChangePassword() {
@@ -3024,6 +3183,7 @@
         alert(res);
         document.getElementById("change-pass-old").value = "";
         document.getElementById("change-pass-new").value = "";
+        closePasswordModal();
       }, function (err) {
         alert("Error: " + err.message);
       });
@@ -3164,6 +3324,136 @@
       });
     }
 
+    function adminFetchFromAPIFootball() {
+      const matchId = document.getElementById("admin-result-match-select").value;
+      if (!matchId) {
+        alert("Please select a match first!");
+        return;
+      }
+
+      server.call('getSystemRules', [], function (rules) {
+        const apiKey = rules["RapidAPI_Key"];
+        if (!apiKey || apiKey.trim() === "") {
+          alert("RapidAPI_Key is not set in System Rules! Please add it first.");
+          return;
+        }
+
+        server.call('getMatchesData', [], function (matches) {
+          const match = matches.find(m => m.matchId === matchId);
+          if (!match) {
+            alert("Match details not found in database.");
+            return;
+          }
+
+          const isNumericId = /^\d+$/.test(matchId);
+          let queryUrl = "";
+
+          if (isNumericId) {
+            queryUrl = `https://api-football-v1.p.rapidapi.com/v3/fixtures?id=${matchId}`;
+          } else {
+            queryUrl = `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=1&season=2026`;
+          }
+
+          const headers = {
+            'x-rapidapi-key': apiKey,
+            'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+          };
+
+          const ratingsField = document.getElementById("admin-player-ratings");
+          ratingsField.value = "Fetching data from API-Football...";
+
+          fetch(queryUrl, { headers: headers })
+            .then(res => res.json())
+            .then(json => {
+              if (!json.response || json.response.length === 0) {
+                if (!isNumericId) {
+                  return fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?date=${new Date(match.time).toISOString().split('T')[0]}`, { headers: headers })
+                    .then(res => res.json());
+                }
+                throw new Error("Fixture not found in API-Football.");
+              }
+              return json;
+            })
+            .then(json => {
+              let fixture = null;
+              if (isNumericId) {
+                fixture = json.response[0];
+              } else {
+                fixture = json.response.find(f => {
+                  const home = f.teams.home.name.toLowerCase();
+                  const away = f.teams.away.name.toLowerCase();
+                  const t1 = match.team1.toLowerCase();
+                  const t2 = match.team2.toLowerCase();
+                  return (home.includes(t1) || t1.includes(home)) && (away.includes(t2) || t2.includes(away)) ||
+                         (home.includes(t2) || t2.includes(home)) && (away.includes(t1) || t1.includes(away));
+                });
+              }
+
+              if (!fixture) {
+                throw new Error("Could not find a matching fixture in API-Football for: " + match.team1 + " vs " + match.team2);
+              }
+
+              const fixtureId = fixture.fixture.id;
+              const homeGoals = fixture.goals.home ?? 0;
+              const awayGoals = fixture.goals.away ?? 0;
+              let winner = "Draw";
+              if (homeGoals > awayGoals) {
+                winner = fixture.teams.home.name;
+              } else if (awayGoals > homeGoals) {
+                winner = fixture.teams.away.name;
+              }
+
+              let dbWinner = "Draw";
+              if (winner !== "Draw") {
+                if (winner.toLowerCase().includes(match.team1.toLowerCase()) || match.team1.toLowerCase().includes(winner.toLowerCase())) {
+                  dbWinner = match.team1;
+                } else if (winner.toLowerCase().includes(match.team2.toLowerCase()) || match.team2.toLowerCase().includes(winner.toLowerCase())) {
+                  dbWinner = match.team2;
+                } else {
+                  dbWinner = winner;
+                }
+              }
+
+              document.getElementById("admin-score-t1").value = homeGoals;
+              document.getElementById("admin-score-t2").value = awayGoals;
+              
+              const winnerSel = document.getElementById("admin-score-winner");
+              winnerSel.innerHTML = `
+                <option value="${match.team1}" ${dbWinner === match.team1 ? 'selected' : ''}>${match.team1} wins</option>
+                <option value="${match.team2}" ${dbWinner === match.team2 ? 'selected' : ''}>${match.team2} wins</option>
+                <option value="Draw" ${dbWinner === 'Draw' ? 'selected' : ''}>Draw</option>
+              `;
+
+              fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures/players?fixture=${fixtureId}`, { headers: headers })
+                .then(res => res.json())
+                .then(playerJson => {
+                  let ratingsList = [];
+                  if (playerJson.response && playerJson.response.length > 0) {
+                    playerJson.response.forEach(teamObj => {
+                      teamObj.players.forEach(p => {
+                        const ratingVal = p.statistics[0].games.rating;
+                        if (ratingVal) {
+                          ratingsList.push(`${p.player.name}:${ratingVal}`);
+                        }
+                      });
+                    });
+                  }
+                  ratingsField.value = ratingsList.join(",");
+                  alert(`Fetched successfully!\nScore: ${homeGoals} - ${awayGoals} (${dbWinner})\nRatings: Loaded ${ratingsList.length} player ratings.`);
+                })
+                .catch(err => {
+                  ratingsField.value = "";
+                  alert(`Fixture found but failed to load player ratings: ${err.message}`);
+                });
+            })
+            .catch(err => {
+              ratingsField.value = "";
+              alert("Error: " + err.message);
+            });
+        });
+      });
+    }
+
     function adminSubmitMatchScore() {
       const matchId = document.getElementById("admin-result-match-select").value;
       const t1 = parseInt(document.getElementById("admin-score-t1").value);
@@ -3295,9 +3585,28 @@
         });
       });
     }
-
   </script>
 
-</body>
+  <!-- Modal Dialog: Change Password -->
+  <div id="password-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Change Password</h3>
+        <button class="close-btn" onclick="closePasswordModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label for="change-pass-old">Current Password</label>
+        <input type="password" id="change-pass-old" class="form-control" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label for="change-pass-new">New Password</label>
+        <input type="password" id="change-pass-new" class="form-control" placeholder="••••••••">
+      </div>
+      <button class="btn" onclick="submitChangePassword()" style="width: 100%; margin-top: 10px;">
+        Update Password
+      </button>
+    </div>
+  </div>
 
+</body>
 </html>
