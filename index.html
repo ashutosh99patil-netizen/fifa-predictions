@@ -5,6 +5,18 @@
   <meta charset="UTF-8">
   <title>FIFA Predictions Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <script>
+    // Global Error Reporter for Remote Debugging
+    window.addEventListener('error', function(e) {
+      setTimeout(function() {
+        const errDiv = document.getElementById('global-error-reporter');
+        if (errDiv) {
+          errDiv.style.display = 'block';
+          errDiv.querySelector('.msg').innerText = e.message + ' \nLine: ' + e.lineno + ' \nFile: ' + e.filename;
+        }
+      }, 500);
+    });
+  </script>
   <!-- Import Premium Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -799,6 +811,28 @@
 <body>
 
   <div class="app-container">
+
+    <!-- Global JS Error Reporter -->
+    <div id="global-error-reporter" class="card" style="display:none; border-color:var(--danger); background:rgba(239,68,68,0.15); margin-bottom: 20px; position:relative; z-index:9999;">
+      <div style="color:var(--danger); font-weight:bold; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:var(--danger);"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        JavaScript Error Detected
+      </div>
+      <div class="msg" style="font-family: monospace; font-size: 13px; color:var(--text-main); white-space:pre-wrap; word-break:break-all; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;"></div>
+    </div>
+
+    <!-- Connection Error alert -->
+    <div id="connection-error" class="card" style="display:none; border-color:var(--danger); background:rgba(239,68,68,0.12); margin-bottom: 20px;">
+      <div style="display:flex; align-items:flex-start; gap:12px; color:#fca5a5;">
+        <svg viewBox="0 0 24 24" style="width:24px; height:24px; fill:var(--danger); flex-shrink:0; margin-top:2px;">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        <div>
+          <strong style="display:block; margin-bottom:6px; font-size:16px;">Database Connection Failed</strong>
+          <span id="connection-error-text" style="font-size:13px; color:var(--text-muted); line-height:1.5; display:block;"></span>
+        </div>
+      </div>
+    </div>
 
     <!-- Local Mode Environment Switcher -->
     <div id="env-notifier" class="mock-switcher" style="display:none;">
@@ -1971,6 +2005,10 @@
     };
 
     function initAppSession() {
+      // Hide error alert first
+      const connErr = document.getElementById("connection-error");
+      if (connErr) connErr.style.display = "none";
+
       server.call('getActiveUserSession', [], function (session) {
         currentUserSession = session;
         if (session.loggedIn) {
@@ -1984,6 +2022,21 @@
           let users = MOCK_DB.getTable("fifa_users");
           let sel = document.getElementById("mock-user-select");
           sel.innerHTML = users.map(u => `<option value="${u.userId}" ${u.userId === session.userId ? 'selected' : ''}>${u.name}</option>`).join("");
+        }
+      }, function (err) {
+        // Show connection failure error alert
+        const connErr = document.getElementById("connection-error");
+        const connErrText = document.getElementById("connection-error-text");
+        if (connErr && connErrText) {
+          connErr.style.display = "block";
+          connErrText.innerHTML = 
+            `Failed to load the prediction database. Details: <strong>${err.message || err}</strong>.<br><br>` +
+            `<strong>To resolve this connection issue:</strong><br>` +
+            `1. Make sure you entered your Google Apps Script Web App URL in <code>index.html</code> at <strong>line 1341</strong> (<code>const API_URL = "https://script.google.com/...";</code>).<br>` +
+            `2. In the Apps Script Editor, verify the deployment settings (<strong>Deploy</strong> > <strong>Manage deployments</strong> > <strong>Edit</strong>):<br>` +
+            `   - <strong>Execute as</strong>: <code>Me (your Google email)</code><br>` +
+            `   - <strong>Who has access</strong>: <code>Anyone</code><br>` +
+            `3. Ensure you have run the function <code>initializeDatabase</code> at least once in the Apps Script Editor toolbar and authorized the required permissions.`;
         }
       });
     }
