@@ -5,10 +5,13 @@
   <meta charset="UTF-8">
   <title>FIFA Predictions Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <!-- Firebase SDKs (Compat v9 for simplicity) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script>
     // Global Error Reporter for Remote Debugging
-    window.addEventListener('error', function(e) {
-      setTimeout(function() {
+    window.addEventListener('error', function (e) {
+      setTimeout(function () {
         const errDiv = document.getElementById('global-error-reporter');
         if (errDiv) {
           errDiv.style.display = 'block';
@@ -813,23 +816,30 @@
   <div class="app-container">
 
     <!-- Global JS Error Reporter -->
-    <div id="global-error-reporter" class="card" style="display:none; border-color:var(--danger); background:rgba(239,68,68,0.15); margin-bottom: 20px; position:relative; z-index:9999;">
+    <div id="global-error-reporter" class="card"
+      style="display:none; border-color:var(--danger); background:rgba(239,68,68,0.15); margin-bottom: 20px; position:relative; z-index:9999;">
       <div style="color:var(--danger); font-weight:bold; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
-        <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:var(--danger);"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:var(--danger);">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+        </svg>
         JavaScript Error Detected
       </div>
-      <div class="msg" style="font-family: monospace; font-size: 13px; color:var(--text-main); white-space:pre-wrap; word-break:break-all; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;"></div>
+      <div class="msg"
+        style="font-family: monospace; font-size: 13px; color:var(--text-main); white-space:pre-wrap; word-break:break-all; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;">
+      </div>
     </div>
 
     <!-- Connection Error alert -->
-    <div id="connection-error" class="card" style="display:none; border-color:var(--danger); background:rgba(239,68,68,0.12); margin-bottom: 20px;">
+    <div id="connection-error" class="card"
+      style="display:none; border-color:var(--danger); background:rgba(239,68,68,0.12); margin-bottom: 20px;">
       <div style="display:flex; align-items:flex-start; gap:12px; color:#fca5a5;">
         <svg viewBox="0 0 24 24" style="width:24px; height:24px; fill:var(--danger); flex-shrink:0; margin-top:2px;">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
         </svg>
         <div>
           <strong style="display:block; margin-bottom:6px; font-size:16px;">Database Connection Failed</strong>
-          <span id="connection-error-text" style="font-size:13px; color:var(--text-muted); line-height:1.5; display:block;"></span>
+          <span id="connection-error-text"
+            style="font-size:13px; color:var(--text-muted); line-height:1.5; display:block;"></span>
         </div>
       </div>
     </div>
@@ -1496,34 +1506,568 @@
       }
     };
 
-    // Set your Google Apps Script Web App URL here to connect your GitHub Pages/Local build to Google Sheets
-    // E.g., const API_URL = "https://script.google.com/macros/s/AKfycb.../exec";
-    const API_URL = "https://script.google.com/macros/s/AKfycbzwydLaa-JUfgSMLQk-TaW4L-RzLCBSqc9Nqw_xt-Dan8LUYp43UQ5-DgfZrvpeCuUxbA/exec";
+    // ==========================================
+    // FIREBASE DATABASE CONFIGURATION
+    // ==========================================
+    // Paste your Firebase Config values here to take your GitHub Pages app online instantly!
+    const firebaseConfig = {
+      apiKey: "AIzaSyDit1HFk1sW3eaOIfuRjlH5yIHgPzQ4SU0",
+      authDomain: "fifa-predictions-4a3fa.firebaseapp.com",
+      databaseURL: "https://fifa-predictions-4a3fa-default-rtdb.firebaseio.com",
+      projectId: "fifa-predictions-4a3fa",
+      storageBucket: "fifa-predictions-4a3fa.firebasestorage.app",
+      messagingSenderId: "350800631121",
+      appId: "1:350800631121:web:ca93a5431587e54f45af70",
+      measurementId: "G-TP72HFE1VC"
+    };
+
+    let useFirebase = false;
+    let firebaseDB = null;
+
+    if (firebaseConfig.databaseURL && firebaseConfig.databaseURL.trim() !== "") {
+      try {
+        firebase.initializeApp(firebaseConfig);
+        firebaseDB = firebase.database();
+        useFirebase = true;
+      } catch (err) {
+        console.error("Firebase init failed:", err);
+      }
+    }
 
     /**
-     * Client-Side Apps Script Wrapper
+     * Firebase Database Operations Adapter
+     */
+    const firebaseAPI = {
+      initDatabase: function () {
+        // Seed default rules if empty
+        firebaseDB.ref("rules").once("value").then(snapshot => {
+          if (!snapshot.exists()) {
+            firebaseDB.ref("rules").set({
+              "Winner_Points": 10,
+              "Score_Points": 20,
+              "OU_Points": 5,
+              "Super_Chance_Multiplier": 2,
+              "Super_Chance_Penalty": -10,
+              "Starting_Coins": 100,
+              "Admin_Email": "your-email@gmail.com"
+            });
+          }
+        });
+
+        // Seed default users if empty
+        firebaseDB.ref("users").once("value").then(snapshot => {
+          if (!snapshot.exists()) {
+            firebaseDB.ref("users/U_001").set({
+              userId: "U_001",
+              name: "Admin User",
+              email: "your-email@gmail.com",
+              password: "123",
+              points: 0,
+              coins: 100,
+              superUsed: 0
+            });
+          }
+        });
+
+        // Seed default matches if empty
+        firebaseDB.ref("matches").once("value").then(snapshot => {
+          if (!snapshot.exists()) {
+            const defaultMatches = {
+              "M_001": { matchId: "M_001", stage: "Group Stage", team1: "Canada", team2: "Bosnia", time: new Date(Date.now() + 86400000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" },
+              "M_002": { matchId: "M_002", stage: "Group Stage", team1: "USA", team2: "Paraguay", time: new Date(Date.now() + 172800000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" },
+              "M_003": { matchId: "M_003", stage: "Group Stage", team1: "France", team2: "Brazil", time: new Date(Date.now() + 259200000).toISOString(), status: "Open", t1Goals: "", t2Goals: "", winner: "", ratings: "" }
+            };
+            firebaseDB.ref("matches").set(defaultMatches);
+          }
+        });
+      },
+
+      call: function (funcName, args) {
+        this.initDatabase();
+
+        switch (funcName) {
+          case 'getActiveUserSession':
+            return new Promise((resolve, reject) => {
+              let activeId = localStorage.getItem("mock_active_userid") || "U_001";
+              firebaseDB.ref("users/" + activeId).once("value").then(snapshot => {
+                let user = snapshot.val();
+                if (user) {
+                  resolve({
+                    loggedIn: true,
+                    userId: user.userId,
+                    name: user.name,
+                    email: user.email,
+                    isAdmin: user.userId === "U_001" || user.email === "your-email@gmail.com",
+                    points: parseFloat(user.points) || 0,
+                    coins: parseFloat(user.coins) || 100,
+                    superChances: parseInt(user.superUsed) || 0
+                  });
+                } else {
+                  resolve({ loggedIn: false, isAdmin: false });
+                }
+              }).catch(reject);
+            });
+
+          case 'loginWithCredentials':
+            return new Promise((resolve, reject) => {
+              let [uid, pass] = args;
+              firebaseDB.ref("users/" + uid).once("value").then(snapshot => {
+                let user = snapshot.val();
+                if (user && user.password === pass) {
+                  localStorage.setItem("mock_active_userid", user.userId);
+                  resolve({
+                    success: true,
+                    user: {
+                      userId: user.userId,
+                      name: user.name,
+                      email: user.email,
+                      isAdmin: user.userId === "U_001" || user.email === "your-email@gmail.com",
+                      points: parseFloat(user.points) || 0,
+                      coins: parseFloat(user.coins) || 100,
+                      superChances: parseInt(user.superUsed) || 0
+                    }
+                  });
+                } else {
+                  resolve({ success: false, message: "Invalid credentials" });
+                }
+              }).catch(reject);
+            });
+
+          case 'changeUserPassword':
+            return new Promise((resolve, reject) => {
+              let [cpUser, cpOld, cpNew] = args;
+              firebaseDB.ref("users/" + cpUser).once("value").then(snapshot => {
+                let user = snapshot.val();
+                if (user && user.password === cpOld) {
+                  firebaseDB.ref("users/" + cpUser + "/password").set(cpNew).then(() => {
+                    resolve("Password updated successfully!");
+                  }).catch(reject);
+                } else {
+                  reject(new Error("Incorrect current password!"));
+                }
+              }).catch(reject);
+            });
+
+          case 'getMatchesData':
+            return new Promise((resolve, reject) => {
+              firebaseDB.ref("matches").once("value").then(snapshot => {
+                let matchesObj = snapshot.val() || {};
+                let list = Object.values(matchesObj).map(m => ({
+                  matchId: m.matchId,
+                  stage: m.stage,
+                  team1: m.team1,
+                  team2: m.team2,
+                  time: m.time,
+                  status: m.status,
+                  t1Goals: m.t1Goals !== "" ? parseInt(m.t1Goals) : null,
+                  t2Goals: m.t2Goals !== "" ? parseInt(m.t2Goals) : null,
+                  winner: m.winner,
+                  ratings: m.ratings
+                }));
+                resolve(list);
+              }).catch(reject);
+            });
+
+          case 'getUserTimeline':
+            return new Promise((resolve, reject) => {
+              let [userId] = args;
+              firebaseDB.ref("predictions").once("value").then(snapshot => {
+                let predsObj = snapshot.val() || {};
+                let userPreds = Object.values(predsObj).filter(p => p.userId === userId).map(p => ({
+                  predictionId: p.predictionId,
+                  matchId: p.matchId,
+                  winner: p.winner,
+                  t1Goals: parseInt(p.t1Goals),
+                  t2Goals: parseInt(p.t2Goals),
+                  ou: p.ou,
+                  superChance: p.superChance,
+                  points: p.points !== "" ? parseFloat(p.points) : 0
+                }));
+                resolve(userPreds);
+              }).catch(reject);
+            });
+
+          case 'getLeaderboardData':
+            return new Promise((resolve, reject) => {
+              firebaseDB.ref("users").once("value").then(snapshot => {
+                let usersObj = snapshot.val() || {};
+                let usersList = Object.values(usersObj).map(u => ({
+                  userId: u.userId,
+                  name: u.name,
+                  points: parseFloat(u.points) || 0,
+                  coins: parseFloat(u.coins) || 0
+                }));
+                usersList.sort((a, b) => b.points - a.points || b.coins - a.coins);
+                resolve(usersList);
+              }).catch(reject);
+            });
+
+          case 'getPredictionsForKickedOffMatches':
+            return new Promise((resolve, reject) => {
+              Promise.all([
+                firebaseDB.ref("matches").once("value"),
+                firebaseDB.ref("predictions").once("value"),
+                firebaseDB.ref("users").once("value")
+              ]).then(([matchesSnap, predsSnap, usersSnap]) => {
+                let matches = matchesSnap.val() || {};
+                let predictions = predsSnap.val() || {};
+                let users = usersSnap.val() || {};
+
+                let list = [];
+                Object.values(predictions).forEach(pred => {
+                  let match = matches[pred.matchId];
+                  if (match && (match.status === 'Locked' || match.status === 'Live' || match.status === 'Finished')) {
+                    let user = users[pred.userId] || { name: "Unknown" };
+                    list.push({
+                      userName: user.name,
+                      matchId: pred.matchId,
+                      stage: match.stage,
+                      time: match.time,
+                      team1: match.team1,
+                      team2: match.team2,
+                      winner: pred.winner,
+                      t1Goals: pred.t1Goals,
+                      t2Goals: pred.t2Goals,
+                      ou: pred.ou,
+                      super: pred.superChance,
+                      points: pred.points !== "" ? parseFloat(pred.points) : 0
+                    });
+                  }
+                });
+                resolve(list);
+              }).catch(reject);
+            });
+
+          case 'saveUserPrediction':
+            return new Promise((resolve, reject) => {
+              let [userId, matchId, winner, t1Goals, t2Goals, overUnder, isSuperChance] = args;
+
+              firebaseDB.ref("matches/" + matchId).once("value").then(matchSnap => {
+                let match = matchSnap.val();
+                if (!match) return reject(new Error("Match not found"));
+
+                if (new Date() >= new Date(match.time) || match.status !== 'Open') {
+                  return reject(new Error("Prediction locked! Kickoff has passed or status is locked."));
+                }
+
+                firebaseDB.ref("users/" + userId).once("value").then(userSnap => {
+                  let user = userSnap.val();
+                  if (!user) return reject(new Error("User not found"));
+
+                  let superUsed = parseInt(user.superUsed) || 0;
+                  let predKey = matchId + "_" + userId;
+
+                  firebaseDB.ref("predictions/" + predKey).once("value").then(predSnap => {
+                    let prevPred = predSnap.val();
+                    let wasSuper = prevPred ? (prevPred.superChance === true) : false;
+
+                    if (isSuperChance && !wasSuper) {
+                      if (superUsed >= 3) {
+                        return reject(new Error("Maximum 3 Super Chances already used!"));
+                      }
+                      superUsed += 1;
+                    } else if (!isSuperChance && wasSuper) {
+                      superUsed = Math.max(0, superUsed - 1);
+                    }
+
+                    firebaseDB.ref("users/" + userId + "/superUsed").set(superUsed);
+
+                    let newPred = {
+                      predictionId: "P_" + Math.random().toString(36).substring(2, 10),
+                      matchId: matchId,
+                      userId: userId,
+                      winner: winner,
+                      t1Goals: parseInt(t1Goals),
+                      t2Goals: parseInt(t2Goals),
+                      ou: overUnder,
+                      superChance: isSuperChance,
+                      points: ""
+                    };
+
+                    firebaseDB.ref("predictions/" + predKey).set(newPred).then(() => {
+                      resolve("Prediction saved successfully!");
+                    }).catch(reject);
+                  });
+                });
+              });
+            });
+
+          case 'submitPlayerBet':
+            return new Promise((resolve, reject) => {
+              let [userId, matchId, playerName, wagerAmount] = args;
+              wagerAmount = parseFloat(wagerAmount);
+
+              firebaseDB.ref("users/" + userId).once("value").then(userSnap => {
+                let user = userSnap.val();
+                if (!user) return reject(new Error("User not found"));
+                let currentCoins = parseFloat(user.coins) || 0;
+                if (currentCoins < wagerAmount) return reject(new Error("Insufficient coin balance!"));
+
+                firebaseDB.ref("matches/" + matchId).once("value").then(matchSnap => {
+                  let match = matchSnap.val();
+                  if (!match) return reject(new Error("Match not found"));
+
+                  let matchOpen = (match.status === "Open" || match.status === "Live");
+                  let matchTime = new Date(match.time);
+                  let now = new Date();
+
+                  if (!matchOpen) return reject(new Error("Betting closed! Match is locked or finished."));
+                  if (match.status === "Live" && (now.getTime() - matchTime.getTime() > 105 * 60 * 1000)) {
+                    return reject(new Error("Wager locked! Match is near completion."));
+                  }
+                  if (match.status === "Open" && now >= matchTime) {
+                    return reject(new Error("Match kickoff has passed."));
+                  }
+
+                  let newCoins = currentCoins - wagerAmount;
+                  firebaseDB.ref("users/" + userId + "/coins").set(newCoins);
+
+                  let betId = "B_" + Math.random().toString(36).substring(2, 10);
+                  firebaseDB.ref("bets/" + betId).set({
+                    betId: betId,
+                    userId: userId,
+                    matchId: matchId,
+                    playerName: playerName,
+                    wager: wagerAmount,
+                    status: "Pending",
+                    earnings: ""
+                  }).then(() => {
+                    resolve("Bet placed successfully!");
+                  }).catch(reject);
+                });
+              });
+            });
+
+          case 'getUserBets':
+            return new Promise((resolve, reject) => {
+              let [userId] = args;
+              firebaseDB.ref("bets").once("value").then(snapshot => {
+                let betsObj = snapshot.val() || {};
+                let userBets = Object.values(betsObj).filter(b => b.userId === userId).map(b => ({
+                  betId: b.betId,
+                  matchId: b.matchId,
+                  playerName: b.playerName,
+                  wager: parseFloat(b.wager),
+                  status: b.status,
+                  earnings: b.earnings !== "" ? parseFloat(b.earnings) : 0
+                }));
+                resolve(userBets);
+              }).catch(reject);
+            });
+
+          case 'createNewUser':
+            return new Promise((resolve, reject) => {
+              let [userId, name, email, password, startingCoins] = args;
+              firebaseDB.ref("users/" + userId).once("value").then(snapshot => {
+                if (snapshot.exists()) return reject(new Error("User ID already exists"));
+
+                firebaseDB.ref("users/" + userId).set({
+                  userId: userId,
+                  name: name,
+                  email: email,
+                  password: password,
+                  points: 0,
+                  coins: parseFloat(startingCoins) || 100,
+                  superUsed: 0
+                }).then(() => {
+                  resolve("User created successfully!");
+                }).catch(reject);
+              });
+            });
+
+          case 'adminEditUser':
+            return new Promise((resolve, reject) => {
+              let [userId, name, email, password, points, coins, superUsed] = args;
+              firebaseDB.ref("users/" + userId).update({
+                name: name,
+                email: email,
+                password: password,
+                points: parseFloat(points),
+                coins: parseFloat(coins),
+                superUsed: parseInt(superUsed)
+              }).then(() => {
+                resolve("User updated successfully!");
+              }).catch(reject);
+            });
+
+          case 'adminAddOrEditMatch':
+            return new Promise((resolve, reject) => {
+              let [matchId, stage, team1, team2, timeStr, status] = args;
+
+              firebaseDB.ref("matches/" + matchId).once("value").then(snapshot => {
+                let existing = snapshot.val() || {};
+                let updatedMatch = {
+                  matchId: matchId,
+                  stage: stage,
+                  team1: team1,
+                  team2: team2,
+                  time: timeStr,
+                  status: status,
+                  t1Goals: existing.t1Goals !== undefined ? existing.t1Goals : "",
+                  t2Goals: existing.t2Goals !== undefined ? existing.t2Goals : "",
+                  winner: existing.winner !== undefined ? existing.winner : "",
+                  ratings: existing.ratings !== undefined ? existing.ratings : ""
+                };
+
+                firebaseDB.ref("matches/" + matchId).set(updatedMatch).then(() => {
+                  resolve("Match saved successfully!");
+                }).catch(reject);
+              });
+            });
+
+          case 'adminSaveSystemRules':
+            return new Promise((resolve, reject) => {
+              let [rulesMap] = args;
+              firebaseDB.ref("rules").update(rulesMap).then(() => {
+                resolve("Rules saved successfully!");
+              }).catch(reject);
+            });
+
+          case 'getSystemRules':
+            return new Promise((resolve, reject) => {
+              firebaseDB.ref("rules").once("value").then(snapshot => {
+                resolve(snapshot.val() || {});
+              }).catch(reject);
+            });
+
+          case 'adminUpdateMatchScoreAndCalculate':
+            return new Promise((resolve, reject) => {
+              let [matchId, t1Score, t2Score, winner, playerRatingsStr] = args;
+              t1Score = parseInt(t1Score);
+              t2Score = parseInt(t2Score);
+
+              Promise.all([
+                firebaseDB.ref("rules").once("value"),
+                firebaseDB.ref("users").once("value"),
+                firebaseDB.ref("predictions").once("value"),
+                firebaseDB.ref("bets").once("value"),
+                firebaseDB.ref("matches/" + matchId).once("value")
+              ]).then(([rulesSnap, usersSnap, predsSnap, betsSnap, matchSnap]) => {
+                let rules = rulesSnap.val() || {};
+                let users = usersSnap.val() || {};
+                let predictions = predsSnap.val() || {};
+                let bets = betsSnap.val() || {};
+                let match = matchSnap.val();
+
+                if (!match) return reject(new Error("Match not found"));
+
+                match.t1Goals = t1Score;
+                match.t2Goals = t2Score;
+                match.winner = winner;
+                match.ratings = playerRatingsStr;
+                match.status = "Finished";
+
+                let winnerPointsVal = parseFloat(rules["Winner_Points"]) || 10;
+                let scorePointsVal = parseFloat(rules["Score_Points"]) || 20;
+                let ouPointsVal = parseFloat(rules["OU_Points"]) || 5;
+                let superChanceMult = parseFloat(rules["Super_Chance_Multiplier"]) || 2;
+                let superChancePen = parseFloat(rules["Super_Chance_Penalty"]) || -10;
+
+                let totalActualGoals = t1Score + t2Score;
+                let actualOverUnder = totalActualGoals > 2.5 ? "Over" : "Under";
+
+                Object.values(predictions).forEach(pred => {
+                  if (pred.matchId === matchId) {
+                    let prevPoints = parseFloat(pred.points) || 0;
+                    let newPoints = 0;
+
+                    let winnerCorrect = (pred.winner === winner);
+                    let scoreCorrect = (parseInt(pred.t1Goals) === t1Score && parseInt(pred.t2Goals) === t2Score);
+                    let ouCorrect = (pred.ou === actualOverUnder);
+
+                    if (pred.superChance) {
+                      if (winnerCorrect) {
+                        let basePoints = (winnerCorrect ? winnerPointsVal : 0) + (scoreCorrect ? scorePointsVal : 0) + (ouCorrect ? ouPointsVal : 0);
+                        newPoints = basePoints * superChanceMult;
+                      } else {
+                        newPoints = superChancePen;
+                      }
+                    } else {
+                      newPoints = (winnerCorrect ? winnerPointsVal : 0) + (scoreCorrect ? scorePointsVal : 0) + (ouCorrect ? ouPointsVal : 0);
+                    }
+
+                    pred.points = newPoints;
+                    firebaseDB.ref("predictions/" + pred.matchId + "_" + pred.userId + "/points").set(newPoints);
+
+                    if (users[pred.userId]) {
+                      users[pred.userId].points = (parseFloat(users[pred.userId].points) || 0) + (newPoints - prevPoints);
+                    }
+                  }
+                });
+
+                let ratings = {};
+                if (playerRatingsStr) {
+                  playerRatingsStr.split(",").forEach(pair => {
+                    let parts = pair.split(":");
+                    if (parts.length === 2) {
+                      ratings[parts[0].trim()] = parseFloat(parts[1].trim());
+                    }
+                  });
+                }
+
+                Object.values(bets).forEach(bet => {
+                  if (bet.matchId === matchId) {
+                    let prevEarnings = parseFloat(bet.earnings) || 0;
+                    let wager = parseFloat(bet.wager) || 0;
+                    let newStatus = "Pending";
+                    let coinsEarned = 0;
+
+                    if (ratings[bet.playerName] !== undefined) {
+                      let rating = ratings[bet.playerName];
+                      if (rating >= 7.0) {
+                        newStatus = "Won";
+                        coinsEarned = Math.round(wager * (rating - 6.0));
+                      } else {
+                        newStatus = "Lost";
+                        coinsEarned = 0;
+                      }
+                    } else {
+                      newStatus = "Refunded";
+                      coinsEarned = wager;
+                    }
+
+                    bet.status = newStatus;
+                    bet.earnings = coinsEarned;
+
+                    firebaseDB.ref("bets/" + bet.betId).update({
+                      status: newStatus,
+                      earnings: coinsEarned
+                    });
+
+                    if (users[bet.userId]) {
+                      users[bet.userId].coins = (parseFloat(users[bet.userId].coins) || 0) + (coinsEarned - prevEarnings);
+                    }
+                  }
+                });
+
+                let updates = {};
+                updates["matches/" + matchId] = match;
+                Object.keys(users).forEach(uid => {
+                  updates["users/" + uid] = users[uid];
+                });
+
+                firebaseDB.ref().update(updates).then(() => {
+                  resolve("Recalculation and payout complete!");
+                }).catch(reject);
+              }).catch(reject);
+            });
+
+          default:
+            return Promise.reject(new Error("Unknown function name: " + funcName));
+        }
+      }
+    };
+
+    /**
+     * Client-Side Apps Script / Firebase Wrapper
      */
     const server = {
       call: function (funcName, args, successCallback, failureCallback) {
-        // 1. If API_URL is configured, use the Web App JSON API (ideal for GitHub Pages)
-        if (typeof API_URL !== 'undefined' && API_URL && API_URL.trim() !== "") {
-          const url = API_URL + "?action=" + encodeURIComponent(funcName) + "&args=" + encodeURIComponent(JSON.stringify(args));
-          fetch(url, {
-            method: "GET"
-          })
-            .then(response => {
-              if (!response.ok) {
-                throw new Error("HTTP error " + response.status);
-              }
-              return response.json();
-            })
-            .then(data => {
-              if (data.success) {
-                if (successCallback) successCallback(data.result);
-              } else {
-                if (failureCallback) failureCallback(new Error(data.error));
-                else console.error(data.error);
-              }
+        // 1. If Firebase is active, use the Firebase API
+        if (useFirebase) {
+          firebaseAPI.call(funcName, args)
+            .then(result => {
+              if (successCallback) successCallback(result);
             })
             .catch(err => {
               if (failureCallback) failureCallback(err);
@@ -1551,7 +2095,7 @@
               if (failureCallback) failureCallback(err);
               else console.error(err);
             }
-          }, 150); // Small delay to simulate API latency
+          }, 150);
         }
       },
 
@@ -2023,7 +2567,7 @@
         const connErrText = document.getElementById("connection-error-text");
         if (connErr && connErrText) {
           connErr.style.display = "block";
-          connErrText.innerHTML = 
+          connErrText.innerHTML =
             `Failed to load the prediction database. Details: <strong>${err.message || err}</strong>.<br><br>` +
             `<strong>To resolve this connection issue:</strong><br>` +
             `1. Make sure you entered your Google Apps Script Web App URL in <code>index.html</code> at <strong>line 1341</strong> (<code>const API_URL = "https://script.google.com/...";</code>).<br>` +
