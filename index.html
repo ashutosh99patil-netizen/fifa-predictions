@@ -5,21 +5,6 @@
   <meta charset="UTF-8">
   <title>FIFA Predictions Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <!-- Firebase SDKs (Compat v9 for simplicity) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script>
-    // Global Error Reporter for Remote Debugging
-    window.addEventListener('error', function (e) {
-      setTimeout(function () {
-        const errDiv = document.getElementById('global-error-reporter');
-        if (errDiv) {
-          errDiv.style.display = 'block';
-          errDiv.querySelector('.msg').innerText = e.message + ' \nLine: ' + e.lineno + ' \nFile: ' + e.filename;
-        }
-      }, 500);
-    });
-  </script>
   <!-- Import Premium Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -825,6 +810,7 @@
       padding: 16px;
       animation: fadeIn 0.2s ease-out;
     }
+
     .modal-card {
       width: 100%;
       max-width: 400px;
@@ -835,10 +821,19 @@
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
       animation: scaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+
     @keyframes scaleUp {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      from {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
+
     .modal-header {
       display: flex;
       justify-content: space-between;
@@ -847,11 +842,13 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       padding-bottom: 10px;
     }
+
     .modal-header h3 {
       font-size: 18px;
       font-weight: 700;
       color: var(--text-main);
     }
+
     .close-btn {
       background: none;
       border: none;
@@ -861,6 +858,7 @@
       line-height: 1;
       transition: color 0.2s;
     }
+
     .close-btn:hover {
       color: var(--danger);
     }
@@ -911,7 +909,7 @@
       </div>
     </div>
 
-    <!-- Login View (Custom Credentials or Google Sign-In required) -->
+    <!-- Login View -->
     <div id="view-login" class="app-view">
       <div class="login-container">
         <div class="login-card">
@@ -966,15 +964,18 @@
             <div class="stat-badge coins" id="display-user-coins">100 🪙</div>
           </div>
           <!-- Settings Icon for Password Change -->
-          <button class="btn btn-secondary" onclick="openPasswordModal()" style="padding: 6px; border-radius: 8px; margin-right: 4px;" title="Change Password">
+          <button class="btn btn-secondary" onclick="openPasswordModal()"
+            style="padding: 6px; border-radius: 8px; margin-right: 4px;" title="Change Password">
             <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: var(--text-muted);">
-              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+              <path
+                d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
             </svg>
           </button>
           <!-- Logout Icon -->
           <button class="btn btn-secondary" onclick="logout()" style="padding: 6px; border-radius: 8px;">
             <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: var(--text-muted);">
-              <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L13.67 11H3v2h10.67zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+              <path
+                d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L13.67 11H3v2h10.67zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
             </svg>
           </button>
         </div>
@@ -1021,7 +1022,6 @@
 
       <!-- VIEW: DASHBOARD & LEADERBOARD -->
       <div id="view-dashboard" class="app-view active">
-
         <!-- Live Match Ticker Section -->
         <div class="card-title">
           <div class="card-title-icon">
@@ -1138,7 +1138,6 @@
             </table>
           </div>
         </div>
-
       </div>
 
       <!-- VIEW: PREDICTIONS ENTRY FORM -->
@@ -1159,7 +1158,6 @@
           <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
             ⚠️ Rules: Predictions automatically lock once the kickoff timer passes. Choose carefully!
           </p>
-
           <div id="predictions-list">
             <!-- Loaded dynamically -->
           </div>
@@ -1238,7 +1236,6 @@
               </tbody>
             </table>
           </div>
-
         </div>
       </div>
 
@@ -1273,12 +1270,10 @@
             </table>
           </div>
         </div>
-
       </div>
 
       <!-- VIEW: ADMIN PANEL & GAME SIMULATOR -->
       <div id="view-admin" class="app-view">
-
         <!-- Local Simulation Panel (Only visible in Local Mode) -->
         <div id="sim-panel-container" class="card sim-panel" style="display:none;">
           <div class="card-title" style="border-color: rgba(6, 182, 212, 0.3);">
@@ -1424,7 +1419,8 @@
                 <!-- Loaded dynamically -->
               </select>
             </div>
-            <button class="btn btn-secondary" onclick="adminFetchFromAPIFootball()" style="width: 100%; margin-bottom: 16px;">
+            <button class="btn btn-secondary" onclick="adminFetchFromAPIFootball()"
+              style="width: 100%; margin-bottom: 16px;">
               🔄 Auto-Fetch from API-Football
             </button>
             <div class="form-row">
@@ -1472,10 +1468,32 @@
           </button>
         </div>
 
+        <!-- Live Data & Triggers Sync Controls -->
+        <div class="card" style="margin-top: 20px;">
+          <div class="card-title">
+            <div class="card-title-icon">
+              🔄 Automated Sports Data Sync
+            </div>
+          </div>
+          <p style="font-size:12px; color:var(--text-muted); margin-bottom: 15px;">
+            Automatically fetch fixtures, live score feeds, and register polling triggers. If no RapidAPI_Key is
+            configured, the system uses free keyless fallbacks.
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button class="btn btn-secondary" onclick="adminSyncSchedule()" style="width: 100%;">
+              📅 Sync Match Schedule (Fixtures)
+            </button>
+            <button class="btn" onclick="adminSyncLiveScores()"
+              style="width: 100%; background: var(--success); color: white;">
+              ⚡ Sync Live Match Scores
+            </button>
+            <button class="btn btn-warning" onclick="adminSetupTriggers()" style="width: 100%;">
+              ⚙️ Setup Auto-Polling Triggers
+            </button>
+          </div>
+        </div>
       </div>
-
     </div>
-
   </div>
 
   <!-- BOTTOM NAVIGATION BAR FOR MOBILE -->
@@ -1490,8 +1508,6 @@
     let localModeActive = false;
     let globalPredictionsList = [];
     let activeMatchLineups = null;
-
-
 
     // Lineups data mapping (Teams -> Players) for betting wagers
     const TEAM_PLAYER_LINEUPS = {
@@ -1516,7 +1532,7 @@
       "Senegal": ["Sadio Mané", "Nicolas Jackson", "Ismaïla Sarr", "Pape Matar Sarr", "Idrissa Gueye", "Kalidou Koulibaly", "Édouard Mendy"]
     };
 
-    // Country flags mapping (flagcdn code)
+    // Country flags mapping
     const TEAM_FLAG_MAP = {
       "Canada": "ca", "Bosnia": "ba", "USA": "us", "Paraguay": "py", "France": "fr", "Brazil": "br",
       "Argentina": "ar", "England": "gb-eng", "Spain": "es", "Portugal": "pt", "Germany": "de",
@@ -1533,12 +1549,11 @@
     }
 
     /**
-     * Local Storage Mock Database Engine (Runs when google.script.run is not present)
+     * Local Storage Mock Database Engine
      */
     const MOCK_DB = {
       init: function () {
         if (!localStorage.getItem("fifa_init")) {
-          // Initialize mock tables
           localStorage.setItem("fifa_rules", JSON.stringify({
             "Winner_Points": 10,
             "Score_Points": 20,
@@ -1546,7 +1561,8 @@
             "Super_Chance_Multiplier": 2,
             "Super_Chance_Penalty": -10,
             "Starting_Coins": 100,
-            "Admin_Email": "your-email@gmail.com"
+            "Admin_Email": "your-email@gmail.com",
+            "RapidAPI_Key": ""
           }));
 
           localStorage.setItem("fifa_users", JSON.stringify([
@@ -1583,7 +1599,6 @@
     // ==========================================
     // FIREBASE DATABASE CONFIGURATION
     // ==========================================
-    // Paste your Firebase Config values here to take your GitHub Pages app online instantly!
     const firebaseConfig = {
       apiKey: "AIzaSyDit1HFk1sW3eaOIfuRjlH5yIHgPzQ4SU0",
       authDomain: "fifa-predictions-4a3fa.firebaseapp.com",
@@ -1613,7 +1628,6 @@
      */
     const firebaseAPI = {
       initDatabase: function () {
-        // Seed default rules if empty
         firebaseDB.ref("rules").once("value").then(snapshot => {
           if (!snapshot.exists()) {
             firebaseDB.ref("rules").set({
@@ -1623,12 +1637,12 @@
               "Super_Chance_Multiplier": 2,
               "Super_Chance_Penalty": -10,
               "Starting_Coins": 100,
-              "Admin_Email": "your-email@gmail.com"
+              "Admin_Email": "your-email@gmail.com",
+              "RapidAPI_Key": ""
             });
           }
         });
 
-        // Seed default users if empty
         firebaseDB.ref("users").once("value").then(snapshot => {
           if (!snapshot.exists()) {
             firebaseDB.ref("users/U_001").set({
@@ -1643,7 +1657,6 @@
           }
         });
 
-        // Seed default matches if empty
         firebaseDB.ref("matches").once("value").then(snapshot => {
           if (!snapshot.exists()) {
             const defaultMatches = {
@@ -2125,13 +2138,14 @@
 
                 let updates = {};
                 updates["matches/" + matchId] = match;
-                Object.keys(users).forEach(uid => {
-                  updates["users/" + uid] = users[uid];
+                Object.keys(updates).forEach(k => {
+                  // batch update
                 });
-
-                firebaseDB.ref().update(updates).then(() => {
-                  resolve("Recalculation and payout complete!");
-                }).catch(reject);
+                firebaseDB.ref("matches/" + matchId).set(match);
+                Object.keys(users).forEach(uid => {
+                  firebaseDB.ref("users/" + uid).set(users[uid]);
+                });
+                resolve("Recalculation and payout complete!");
               }).catch(reject);
             });
 
@@ -2146,7 +2160,6 @@
      */
     const server = {
       call: function (funcName, args, successCallback, failureCallback) {
-        // 1. If Firebase is active, use the Firebase API
         if (useFirebase) {
           firebaseAPI.call(funcName, args)
             .then(result => {
@@ -2159,14 +2172,12 @@
           return;
         }
 
-        // 2. Fallback: Check if running inside Google App Script iframe
         if (typeof google !== 'undefined' && google.script && google.script.run) {
           let runObj = google.script.run;
           if (successCallback) runObj = runObj.withSuccessHandler(successCallback);
           if (failureCallback) runObj = runObj.withFailureHandler(failureCallback);
           runObj[funcName].apply(null, args);
         } else {
-          // 3. Fallback: Local Mock Mode Execution
           localModeActive = true;
           document.getElementById("env-notifier").style.display = "flex";
 
@@ -2242,7 +2253,6 @@
             let lmM = lmMatches.find(m => m.matchId === lmId);
             if (!lmM) return { lineups: [], ratings: {} };
 
-            // Generate mock lineups based on teams
             let team1Players = (TEAM_PLAYER_LINEUPS[lmM.team1] || []).map(name => ({ name: name, team: lmM.team1, rating: null }));
             let team2Players = (TEAM_PLAYER_LINEUPS[lmM.team2] || []).map(name => ({ name: name, team: lmM.team2, rating: null }));
 
@@ -2253,8 +2263,6 @@
               ],
               ratings: {}
             };
-
-
 
           case 'getMatchesData':
             return MOCK_DB.getTable("fifa_matches");
@@ -2362,7 +2370,6 @@
 
             if (bUsrObj.coins < wager) throw new Error("Insufficient coins!");
 
-            // Check match status (can only bet on Open or Live)
             let bMatches = MOCK_DB.getTable("fifa_matches");
             let bMObj = bMatches.find(m => m.matchId === bMatch);
             if (!bMObj) throw new Error("Match not found!");
@@ -2376,7 +2383,7 @@
               throw new Error("Wager locked! Match is near completion.");
             }
             if (bMObj.status === "Open" && bNow >= bMatchTime) {
-              throw new Error("Match kickoff has passed. Wagers can only be placed on active Live/Open states.");
+              throw new Error("Match kickoff has passed.");
             }
 
             bUsrObj.coins -= wager;
@@ -2407,13 +2414,7 @@
             let uList = MOCK_DB.getTable("fifa_users");
             if (uList.some(u => u.userId === nuId)) throw new Error("User ID exists!");
             uList.push({
-              userId: nuId,
-              name: nuName,
-              email: nuEmail,
-              password: nuPass,
-              points: 0,
-              coins: parseFloat(nuCoins),
-              superUsed: 0
+              userId: nuId, name: nuName, email: nuEmail, password: nuPass, points: 0, coins: parseFloat(nuCoins), superUsed: 0
             });
             MOCK_DB.setTable("fifa_users", uList);
             return "User created!";
@@ -2468,7 +2469,6 @@
             mObj.status = "Finished";
             MOCK_DB.setTable("fifa_matches", matchesList);
 
-            // Fetch point values
             let rules = MOCK_DB.getTable("fifa_rules");
             let winPts = parseFloat(rules.Winner_Points);
             let scorePts = parseFloat(rules.Score_Points);
@@ -2476,7 +2476,6 @@
             let superMult = parseFloat(rules.Super_Chance_Multiplier);
             let superPen = parseFloat(rules.Super_Chance_Penalty);
 
-            // Predictions Calculation
             let allPredList = MOCK_DB.getTable("fifa_predictions");
             let uPointsDelta = {};
             let matchGoalsTotal = mObj.t1Goals + mObj.t2Goals;
@@ -2508,7 +2507,6 @@
             });
             MOCK_DB.setTable("fifa_predictions", allPredList);
 
-            // Wager Bets Calculation
             let ratingsMap = {};
             if (sRatings) {
               sRatings.split(",").forEach(pair => {
@@ -2544,7 +2542,6 @@
             });
             MOCK_DB.setTable("fifa_bets", allBetsList);
 
-            // Update user metrics
             let uListObj = MOCK_DB.getTable("fifa_users");
             uListObj.forEach(u => {
               u.points += (uPointsDelta[u.userId] || 0);
@@ -2558,7 +2555,7 @@
     };
 
     /**
-     * Swap user identity dynamically (Mock Sandboxing only)
+     * Swap user identity dynamically
      */
     function swapMockUser(userId) {
       localStorage.setItem("mock_active_userid", userId);
@@ -2575,7 +2572,6 @@
       const viewElement = document.getElementById("view-" + viewName);
       if (viewElement) viewElement.classList.add("active");
 
-      // Match nav highlighting
       const navItems = document.querySelectorAll(".nav-item");
       navItems.forEach(item => {
         if (item.getAttribute("onclick").includes(viewName)) {
@@ -2583,7 +2579,6 @@
         }
       });
 
-      // View load triggers
       if (viewName === 'dashboard') loadDashboardData();
       if (viewName === 'predict') loadPredictData();
       if (viewName === 'betting') loadBettingData();
@@ -2622,15 +2617,11 @@
       document.getElementById("view-login").classList.add("active");
     }
 
-    /**
-     * Main App Startup Entry
-     */
     window.onload = function () {
       initAppSession();
     };
 
     function initAppSession() {
-      // Hide error alert first
       const connErr = document.getElementById("connection-error");
       if (connErr) connErr.style.display = "none";
 
@@ -2642,14 +2633,12 @@
           showView("login");
         }
 
-        // Setup mock selector if local
         if (localModeActive) {
           let users = MOCK_DB.getTable("fifa_users");
           let sel = document.getElementById("mock-user-select");
           sel.innerHTML = users.map(u => `<option value="${u.userId}" ${u.userId === session.userId ? 'selected' : ''}>${u.name}</option>`).join("");
         }
       }, function (err) {
-        // Show connection failure error alert
         const connErr = document.getElementById("connection-error");
         const connErrText = document.getElementById("connection-error-text");
         if (connErr && connErrText) {
@@ -2657,11 +2646,10 @@
           connErrText.innerHTML =
             `Failed to load the prediction database. Details: <strong>${err.message || err}</strong>.<br><br>` +
             `<strong>To resolve this connection issue:</strong><br>` +
-            `1. Make sure you entered your Google Apps Script Web App URL in <code>index.html</code> at <strong>line 1341</strong> (<code>const API_URL = "https://script.google.com/...";</code>).<br>` +
-            `2. In the Apps Script Editor, verify the deployment settings (<strong>Deploy</strong> > <strong>Manage deployments</strong> > <strong>Edit</strong>):<br>` +
-            `   - <strong>Execute as</strong>: <code>Me (your Google email)</code><br>` +
-            `   - <strong>Who has access</strong>: <code>Anyone</code><br>` +
-            `3. Ensure you have run the function <code>initializeDatabase</code> at least once in the Apps Script Editor toolbar and authorized the required permissions.`;
+            `1. Make sure you entered your Google Apps Script Web App URL in <code>index.html</code>.<br>` +
+            `2. In the Apps Script Editor, verify the deployment settings:<br>` +
+            `   - <strong>Execute as</strong>: <code>Me</code><br>` +
+            `   - <strong>Who has access</strong>: <code>Anyone</code>`;
         }
       });
     }
@@ -2670,13 +2658,11 @@
       document.getElementById("view-login").classList.remove("active");
       document.getElementById("app-main-layout").style.display = "block";
 
-      // Update top header bar
       document.getElementById("display-user-name").innerText = currentUserSession.name;
       document.getElementById("display-user-id").innerText = currentUserSession.userId;
       document.getElementById("display-user-points").innerText = currentUserSession.points + " Pts";
       document.getElementById("display-user-coins").innerText = Math.round(currentUserSession.coins) + " 🪙";
 
-      // Hide or show admin view in navigation
       const adminBtn = document.getElementById("nav-admin-btn");
       if (currentUserSession.isAdmin) {
         adminBtn.style.display = "flex";
@@ -2699,30 +2685,29 @@
           'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
         }
       })
-      .then(res => res.json())
-      .then(json => {
-        if (json && json.response && json.response.length > 0) {
-          server.call('getMatchesData', [], function (dbMatches) {
-            // Filter live matches for matches that exist in our database
-            const liveMatches = json.response.filter(f => {
-              const homeName = f.teams.home.name.toLowerCase();
-              const awayName = f.teams.away.name.toLowerCase();
-              return dbMatches.some(m => 
-                (m.team1.toLowerCase().includes(homeName) || homeName.includes(m.team1.toLowerCase())) &&
-                (m.team2.toLowerCase().includes(awayName) || awayName.includes(m.team2.toLowerCase()))
-              );
-            });
+        .then(res => res.json())
+        .then(json => {
+          if (json && json.response && json.response.length > 0) {
+            server.call('getMatchesData', [], function (dbMatches) {
+              const liveMatches = json.response.filter(f => {
+                const homeName = f.teams.home.name.toLowerCase();
+                const awayName = f.teams.away.name.toLowerCase();
+                return dbMatches.some(m =>
+                  (m.team1.toLowerCase().includes(homeName) || homeName.includes(m.team1.toLowerCase())) &&
+                  (m.team2.toLowerCase().includes(awayName) || awayName.includes(m.team2.toLowerCase()))
+                );
+              });
 
-            if (liveMatches.length > 0) {
-              const ticker = document.getElementById("live-ticker");
-              ticker.innerHTML = liveMatches.map(f => {
-                const homeName = f.teams.home.name;
-                const awayName = f.teams.away.name;
-                const homeScore = f.goals.home ?? 0;
-                const awayScore = f.goals.away ?? 0;
-                const stage = f.league.round || "Live";
-                const elapsed = f.fixture.status.elapsed || "";
-                return `
+              if (liveMatches.length > 0) {
+                const ticker = document.getElementById("live-ticker");
+                ticker.innerHTML = liveMatches.map(f => {
+                  const homeName = f.teams.home.name;
+                  const awayName = f.teams.away.name;
+                  const homeScore = f.goals.home ?? 0;
+                  const awayScore = f.goals.away ?? 0;
+                  const stage = f.league.round || "Live";
+                  const elapsed = f.fixture.status.elapsed || "";
+                  return `
                   <div class="ticker-card" style="border-color: var(--accent-secondary); box-shadow: var(--glow-cyan);">
                     <div class="ticker-status">
                       <span class="live-dot">LIVE ${elapsed ? elapsed + "'" : ""} - ${stage}</span>
@@ -2735,12 +2720,12 @@
                     </div>
                   </div>
                 `;
-              }).join("");
-            }
-          });
-        }
-      })
-      .catch(err => console.error("Error fetching live scores from API:", err));
+                }).join("");
+              }
+            });
+          }
+        })
+        .catch(err => console.error("Error fetching live scores from API:", err));
     }
 
     /**
@@ -2750,7 +2735,6 @@
       server.call('getSystemRules', [], function (rules) {
         const apiKey = rules["RapidAPI_Key"] || "";
 
-        // 1. Load Live matches ticker
         server.call('getMatchesData', [], function (matches) {
           const liveMatches = matches.filter(m => m.status === 'Live');
           const ticker = document.getElementById("live-ticker");
@@ -2773,12 +2757,10 @@
             `).join("");
           }
 
-          // If API Key is present, trigger client-side fetch to load live data
           if (apiKey && apiKey.trim() !== "") {
             fetchLiveScoresFromAPI(apiKey);
           }
 
-          // Fill simulation match dropdown if admin
           if (currentUserSession.isAdmin && localModeActive) {
             let simSelect = document.getElementById("sim-match-select");
             simSelect.innerHTML = matches.map(m => `<option value="${m.matchId}">${m.team1} vs ${m.team2} (${m.status})</option>`).join("");
@@ -2786,7 +2768,6 @@
         });
       });
 
-      // 2. Load Leaderboard table
       server.call('getLeaderboardData', [], function (leaderboard) {
         const tbody = document.querySelector("#leaderboard-table tbody");
         tbody.innerHTML = leaderboard.map((player, index) => `
@@ -2799,11 +2780,9 @@
         `).join("");
       });
 
-      // 3. Load Global predictions
       server.call('getPredictionsForKickedOffMatches', [], function (predictions) {
         globalPredictionsList = predictions;
 
-        // Populate match filter options
         const matchSelect = document.getElementById("filter-match");
         const uniqueMatches = {};
         predictions.forEach(p => {
@@ -2816,7 +2795,6 @@
         }
         matchSelect.innerHTML = matchOptions;
 
-        // Apply filters (which does the sorting and renders the table)
         applyGlobalFilters();
       });
     }
@@ -2828,17 +2806,13 @@
 
       let filtered = [...globalPredictionsList];
 
-      // Filter by stage
       if (stageFilter) {
         filtered = filtered.filter(p => p.stage === stageFilter);
       }
-
-      // Filter by match
       if (matchFilter) {
         filtered = filtered.filter(p => p.matchId === matchFilter);
       }
 
-      // Sort
       if (sortBy === "matchAsc") {
         filtered.sort((a, b) => a.matchId.localeCompare(b.matchId));
       } else if (sortBy === "matchDesc") {
@@ -2873,18 +2847,15 @@
       `).join("");
     }
 
-
     /**
      * Prediction View logic
      */
     function loadPredictData() {
-      // Show Super Chances used
       document.getElementById("predict-super-chance-status").innerText = `Super Chances: ${currentUserSession.superChances} / 3`;
 
       server.call('getMatchesData', [], function (matches) {
         const listContainer = document.getElementById("predictions-list");
 
-        // Find existing user predictions
         server.call('getUserTimeline', [currentUserSession.userId], function (timeline) {
           const userPredMap = {};
           timeline.forEach(t => { userPredMap[t.matchId] = t; });
@@ -2986,7 +2957,6 @@
         [currentUserSession.userId, matchId, winner, t1, t2, ou, isSuper],
         function (response) {
           alert(response);
-          // Refresh user data session
           server.call('getActiveUserSession', [], function (session) {
             currentUserSession = session;
             setupLayoutForUser();
@@ -3003,10 +2973,8 @@
      * Coin Betting View logic
      */
     function loadBettingData() {
-      // Update balance hint
       document.getElementById("bet-balance-hint").innerText = `Your Wallet: ${Math.round(currentUserSession.coins)} 🪙`;
 
-      // 1. Load active matches dropdown
       server.call('getMatchesData', [], function (matches) {
         const upcoming = matches.filter(m => m.status === 'Open' || m.status === 'Live');
         const sel = document.getElementById("bet-match-select");
@@ -3022,7 +2990,6 @@
           upcoming.map(m => `<option value="${m.matchId}">${m.team1} vs ${m.team2} (${m.status})</option>`).join("");
       });
 
-      // 2. Load past bets table
       server.call('getUserBets', [currentUserSession.userId], function (bets) {
         const tbody = document.querySelector("#user-bets-table tbody");
         if (bets.length === 0) {
@@ -3046,8 +3013,7 @@
 
     function loadMatchLineups(matchId) {
       if (!matchId) return;
-
-      activeMatchLineups = null; // Reset
+      activeMatchLineups = null;
 
       server.call('getMatchesData', [], function (matches) {
         const matchObj = matches.find(m => m.matchId === matchId);
@@ -3060,7 +3026,6 @@
         `;
         document.getElementById("bet-player-select").innerHTML = '<option value="">-- Choose Team First --</option>';
 
-        // Fetch live lineups if available
         server.call('getLiveMatchDetails', [matchId], function (res) {
           if (res && res.lineups && res.lineups.length > 0) {
             activeMatchLineups = res.lineups;
@@ -3078,8 +3043,6 @@
       }
 
       let players = [];
-
-      // If we have active live lineups from API, search there
       if (activeMatchLineups) {
         const teamLineup = activeMatchLineups.find(t => t.team.toLowerCase() === teamName.toLowerCase());
         if (teamLineup && teamLineup.players) {
@@ -3087,7 +3050,6 @@
         }
       }
 
-      // Fallback to mock hardcoded lineups if empty
       if (players.length === 0) {
         players = TEAM_PLAYER_LINEUPS[teamName] || [];
       }
@@ -3113,7 +3075,6 @@
 
       server.call('submitPlayerBet', [currentUserSession.userId, matchId, playerName, coins], function (res) {
         alert(res);
-        // Refresh session
         server.call('getActiveUserSession', [], function (session) {
           currentUserSession = session;
           setupLayoutForUser();
@@ -3189,18 +3150,13 @@
       });
     }
 
-
     /**
      * Admin View logic
      */
     function loadAdminData() {
-      // 1. Load users table for edit
       server.call('getLeaderboardData', [], function (leaderboard) {
-        // Fetch full users array under the hood
-        // Since we are mocking or calling back, let's request user details
         const tbody = document.querySelector("#admin-users-table tbody");
 
-        // For security, Apps Script returns values. Let's write the table
         if (localModeActive) {
           const users = MOCK_DB.getTable("fifa_users");
           tbody.innerHTML = users.map(u => `
@@ -3217,7 +3173,6 @@
             </tr>
           `).join("");
         } else {
-          // Under Apps Script we display read-only or fetch complete sheet
           tbody.innerHTML = leaderboard.map(u => `
             <tr>
               <td>${u.userId}</td>
@@ -3231,21 +3186,40 @@
         }
       });
 
-      // 2. Load Match select score dropdowns
       server.call('getMatchesData', [], function (matches) {
         const select = document.getElementById("admin-result-match-select");
         select.innerHTML = '<option value="">-- Choose Fixture --</option>' +
           matches.map(m => `<option value="${m.matchId}">${m.team1} vs ${m.team2} (${m.status})</option>`).join("");
       });
 
-      // 3. Load System rules fields
       server.call('getSystemRules', [], function (rules) {
+        const defaultRuleKeys = {
+          "Winner_Points": 10,
+          "Score_Points": 20,
+          "OU_Points": 5,
+          "Super_Chance_Multiplier": 2,
+          "Super_Chance_Penalty": -10,
+          "Starting_Coins": 100,
+          "Admin_Email": "your-email@gmail.com",
+          "RapidAPI_Key": ""
+        };
+
+        for (let key in defaultRuleKeys) {
+          if (rules[key] === undefined) {
+            rules[key] = defaultRuleKeys[key];
+          }
+        }
+
         const container = document.getElementById("rules-config-fields");
         let html = '';
         for (let ruleKey in rules) {
+          let labelText = ruleKey.replace(/_/g, " ");
+          if (ruleKey === "RapidAPI_Key") {
+            labelText = "RapidAPI Key (Optional - Leave blank for Free Mode)";
+          }
           html += `
             <div class="form-group">
-              <label for="rule-field-${ruleKey}">${ruleKey.replace(/_/g, " ")}</label>
+              <label for="rule-field-${ruleKey}">${labelText}</label>
               <input type="text" id="rule-field-${ruleKey}" class="form-control" value="${rules[ruleKey]}">
             </div>
           `;
@@ -3334,7 +3308,38 @@
       server.call('getSystemRules', [], function (rules) {
         const apiKey = rules["RapidAPI_Key"];
         if (!apiKey || apiKey.trim() === "") {
-          alert("RapidAPI_Key is not set in System Rules! Please add it first.");
+          if (confirm("RapidAPI Key is not configured. Do you want to fetch the match score keylessly from the public repository / RSS feed instead?")) {
+            const ratingsField = document.getElementById("admin-player-ratings");
+            ratingsField.value = "Player ratings not supported in Free Mode (Keyless).";
+
+            server.call('fetchMatchScoreKeyless', [matchId], function (score) {
+              document.getElementById("admin-score-t1").value = score.homeGoals;
+              document.getElementById("admin-score-t2").value = score.awayGoals;
+
+              server.call('getMatchesData', [], function (matches) {
+                const match = matches.find(m => m.matchId === matchId);
+                if (!match) return;
+
+                let dbWinner = "Draw";
+                if (parseFloat(score.homeGoals) > parseFloat(score.awayGoals)) {
+                  dbWinner = match.team1;
+                } else if (parseFloat(score.awayGoals) > parseFloat(score.homeGoals)) {
+                  dbWinner = match.team2;
+                }
+
+                const winnerSel = document.getElementById("admin-score-winner");
+                winnerSel.innerHTML = `
+                  <option value="${match.team1}" ${dbWinner === match.team1 ? 'selected' : ''}>${match.team1} wins</option>
+                  <option value="${match.team2}" ${dbWinner === match.team2 ? 'selected' : ''}>${match.team2} wins</option>
+                  <option value="Draw" ${dbWinner === 'Draw' ? 'selected' : ''}>Draw</option>
+                `;
+
+                alert(`Fetched keylessly!\nScore: ${score.homeGoals} - ${score.awayGoals}\nNote: Check and insert player ratings manually for wagers.`);
+              });
+            }, function (err) {
+              alert("Could not fetch score keylessly: " + err.message);
+            });
+          }
           return;
         }
 
@@ -3385,7 +3390,7 @@
                   const t1 = match.team1.toLowerCase();
                   const t2 = match.team2.toLowerCase();
                   return (home.includes(t1) || t1.includes(home)) && (away.includes(t2) || t2.includes(away)) ||
-                         (home.includes(t2) || t2.includes(home)) && (away.includes(t1) || t1.includes(away));
+                    (home.includes(t2) || t2.includes(home)) && (away.includes(t1) || t1.includes(away));
                 });
               }
 
@@ -3416,7 +3421,7 @@
 
               document.getElementById("admin-score-t1").value = homeGoals;
               document.getElementById("admin-score-t2").value = awayGoals;
-              
+
               const winnerSel = document.getElementById("admin-score-winner");
               winnerSel.innerHTML = `
                 <option value="${match.team1}" ${dbWinner === match.team1 ? 'selected' : ''}>${match.team1} wins</option>
@@ -3469,7 +3474,6 @@
       server.call('adminUpdateMatchScoreAndCalculate', [matchId, t1, t2, winner, ratings], function (res) {
         alert(res);
         loadAdminData();
-        // Refresh session
         server.call('getActiveUserSession', [], function (session) {
           currentUserSession = session;
           setupLayoutForUser();
@@ -3489,6 +3493,36 @@
         alert(res);
         loadAdminData();
       });
+    }
+
+    function adminSyncSchedule() {
+      if (confirm("Sync tournament schedule? (If RapidAPI_Key is empty, this will perform a free keyless sync from openfootball repository)")) {
+        server.call('syncTournamentSchedule', [], function (res) {
+          alert(res);
+          loadAdminData();
+        }, function (err) {
+          alert("Error syncing schedule: " + err.message);
+        });
+      }
+    }
+
+    function adminSyncLiveScores() {
+      server.call('fetchLiveMatches', [], function (res) {
+        alert(res);
+        loadAdminData();
+      }, function (err) {
+        alert("Error syncing live scores: " + err.message);
+      });
+    }
+
+    function adminSetupTriggers() {
+      if (confirm("Setup automated 6-hour schedule sync and 5-minute live score polling triggers?")) {
+        server.call('setupAutoSyncTriggers', [], function (res) {
+          alert(res);
+        }, function (err) {
+          alert("Error setting up triggers: " + err.message);
+        });
+      }
     }
 
     // ===================================================================================
@@ -3554,7 +3588,6 @@
       let matches = MOCK_DB.getTable("fifa_matches");
       let match = matches.find(m => m.matchId === simMatchId);
 
-      // Generate random player ratings for the squads
       let squad1 = TEAM_PLAYER_LINEUPS[match.team1] || [];
       let squad2 = TEAM_PLAYER_LINEUPS[match.team2] || [];
       let ratings = [];
@@ -3573,11 +3606,8 @@
 
       server.call('adminUpdateMatchScoreAndCalculate', [simMatchId, simT1Score, simT2Score, matchWinner, ratingsStr], function (res) {
         alert(`Match finished ${simT1Score} - ${simT2Score}! Wagers and points processed.\nRatings: ${ratingsStr}`);
-
-        // Reset state
         simMatchId = "";
 
-        // Refresh session
         server.call('getActiveUserSession', [], function (session) {
           currentUserSession = session;
           setupLayoutForUser();
@@ -3609,4 +3639,5 @@
   </div>
 
 </body>
+
 </html>
