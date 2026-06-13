@@ -1022,6 +1022,18 @@
 
       <!-- VIEW: DASHBOARD & LEADERBOARD -->
       <div id="view-dashboard" class="app-view active">
+        <!-- Wager Announcement Banner -->
+        <div id="wager-banner" style="display:none; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); margin-bottom: 20px; border-radius: 12px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">🔥</span>
+            <div>
+              <strong style="color:var(--warning); font-size:13px;">Wager Open!</strong>
+              <div id="wager-banner-text" style="font-size:12px; color:var(--text-muted); margin-top:2px;">Pick your Top 3 players now!</div>
+            </div>
+          </div>
+          <button class="btn btn-warning" onclick="showView('betting')" style="padding:6px 12px; font-size:11px; width:auto; margin-top:0; border-radius:8px;">Go to Wagers</button>
+        </div>
+
         <!-- Live Match Ticker Section -->
         <div class="card-title">
           <div class="card-title-icon">
@@ -1175,47 +1187,57 @@
               </svg>
               Player Performance Wager
             </div>
-          </div>
-          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
-            Double your coins! Place a wager on any active player in an upcoming match.
-            If their live match rating is <strong>7.0 or above</strong>, you earn coins based on their performance
-            multiplier:
-            <code style="color:var(--accent-secondary);">Payout = Wager * (Rating - 6.0)</code>. Ratings below 7.0 lose
-            the wager.
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
+            Rank your top 3 performing players for matches opened for wagers. If they match the admin's actual top performing players, you earn coin rewards based on their priority weights:
+            <br>
+            <code style="color:var(--accent-secondary);">Priority 1: 3x Payout | Priority 2: 2x Payout | Priority 3: 1.5x Payout</code>.
           </p>
 
-          <div class="prediction-inputs-box" style="margin-bottom: 20px;">
-            <div class="form-group">
-              <label for="bet-match-select">Select Upcoming Match</label>
-              <select id="bet-match-select" class="form-control" onchange="loadMatchLineups(this.value)">
-                <!-- Loaded dynamically -->
-              </select>
-            </div>
-
-            <div class="form-row">
+          <!-- Active Wager Form (only shown if matches have wagers open) -->
+          <div id="wager-form-container" style="display:none;">
+            <div class="prediction-inputs-box" style="margin-bottom: 20px;">
               <div class="form-group">
-                <label for="bet-team-select">Select Team</label>
-                <select id="bet-team-select" class="form-control" onchange="filterPlayersByTeam(this.value)">
-                  <option value="">-- Choose Match First --</option>
+                <label for="bet-match-select">Select Match with Open Wagers</label>
+                <select id="bet-match-select" class="form-control" onchange="onWagerMatchChange(this.value)">
+                  <!-- Loaded dynamically -->
                 </select>
               </div>
+
               <div class="form-group">
-                <label for="bet-player-select">Select Player</label>
-                <select id="bet-player-select" class="form-control">
-                  <option value="">-- Choose Team First --</option>
+                <label for="wager-player-p1">Priority 1 Pick (3x Multiplier)</label>
+                <select id="wager-player-p1" class="form-control">
+                  <option value="">-- Choose Player --</option>
                 </select>
               </div>
-            </div>
 
-            <div class="form-group">
-              <label for="bet-coin-amount">Coin Wager Amount</label>
-              <input type="number" id="bet-coin-amount" class="form-control" placeholder="e.g. 20" min="5" value="10">
-              <small style="color:var(--text-muted);" id="bet-balance-hint">Your Wallet: 100 🪙</small>
-            </div>
+              <div class="form-group">
+                <label for="wager-player-p2">Priority 2 Pick (2x Multiplier)</label>
+                <select id="wager-player-p2" class="form-control">
+                  <option value="">-- Choose Player --</option>
+                </select>
+              </div>
 
-            <button class="btn btn-warning" onclick="placePlayerBet()" style="width: 100%; margin-top: 10px;">
-              Place Wager
-            </button>
+              <div class="form-group">
+                <label for="wager-player-p3">Priority 3 Pick (1.5x Multiplier)</label>
+                <select id="wager-player-p3" class="form-control">
+                  <option value="">-- Choose Player --</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="bet-coin-amount">Coin Wager Amount</label>
+                <input type="number" id="bet-coin-amount" class="form-control" placeholder="e.g. 20" min="5" value="10">
+                <small style="color:var(--text-muted);" id="bet-balance-hint">Your Wallet: 100 dYT</small>
+              </div>
+
+              <button class="btn btn-warning" onclick="placePlayerBet()" style="width: 100%; margin-top: 10px;">
+                Place Wager
+              </button>
+            </div>
+          </div>
+
+          <div id="wager-no-matches-msg" style="color:var(--text-muted); text-align:center; padding: 30px; background: rgba(255,255,255,0.02); border-radius:12px; border: 1px dashed rgba(255,255,255,0.05); margin-bottom: 20px;">
+            No wagers are currently open. The admin will open player wagers for specific matches soon!
           </div>
 
           <!-- Active Bets Table -->
@@ -1225,7 +1247,9 @@
               <thead>
                 <tr>
                   <th>Match</th>
-                  <th>Player</th>
+                  <th>Priority 1</th>
+                  <th>Priority 2</th>
+                  <th>Priority 3</th>
                   <th>Wager</th>
                   <th>Status</th>
                   <th>Coins Won</th>
@@ -1405,6 +1429,10 @@
                 </select>
               </div>
             </div>
+            <div class="form-group">
+              <label for="admin-match-wager-players">Wager Players List (Optional - Comma separated list of 10 players to open wagers)</label>
+              <input type="text" id="admin-match-wager-players" class="form-control" placeholder="e.g. Messi, Neymar, Mbappe, Davies, Musiala, Bellingham, ...">
+            </div>
             <button class="btn" onclick="adminSaveMatch()" style="width: 100%;">Save Match</button>
           </div>
 
@@ -1441,16 +1469,36 @@
                 </select>
               </div>
               <div class="form-group">
-                <label for="admin-player-ratings">Player Ratings (ratings to resolve wagers)</label>
+                <label for="admin-player-ratings">Actual Top Performers (to resolve wagers)</label>
                 <input type="text" id="admin-player-ratings" class="form-control"
-                  placeholder="e.g. Mbappé:8.5,Messi:6.2">
-                <small style="color:var(--text-muted);">Comma separated, format: Name:Rating</small>
+                  placeholder="e.g. Davies, Musiala, Bellingham">
+                <small style="color:var(--text-muted);">Comma separated list of top performing players in the match.</small>
               </div>
             </div>
             <button class="btn btn-warning" onclick="adminSubmitMatchScore()" style="width: 100%;">
               Publish Scores & Calculate points
             </button>
           </div>
+        </div>
+
+        <!-- Bulk Match Import Card -->
+        <div class="card">
+          <div class="card-title">
+            <div class="card-title-icon">
+              📅 Bulk Match Seeding / Import
+            </div>
+          </div>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
+            Paste your tournament schedule matches in TSV (Tab Separated) or CSV format.
+            <br>Format: <code style="color:var(--accent-secondary);">Match_ID, Stage, Team_1, Team_2, Kickoff_Time, Status, ...</code>
+          </p>
+          <div class="form-group">
+            <label for="admin-bulk-matches-textarea">Schedule Data</label>
+            <textarea id="admin-bulk-matches-textarea" class="form-control" rows="8" placeholder="M_2026_49	Group Stage	Germany	Italy	2026-06-30 18:00:00	Open" style="font-family: monospace; font-size: 11px;"></textarea>
+          </div>
+          <button class="btn btn-secondary" onclick="adminBulkImport()" style="width: 100%; margin-top: 10px;">
+            📥 Import Matches in Bulk
+          </button>
         </div>
 
         <!-- System Rules & Points Tweaks -->
@@ -1572,14 +1620,54 @@
           ]));
 
           localStorage.setItem("fifa_matches", JSON.stringify([
-            { matchId: "M_001", stage: "Group A", team1: "Mexico", team2: "Senegal", time: new Date(Date.now() + 86400000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
-            { matchId: "M_002", stage: "Group A", team1: "USA", team2: "Japan", time: new Date(Date.now() + 172800000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
-            { matchId: "M_003", stage: "Group B", team1: "Canada", team2: "Croatia", time: new Date(Date.now() + 259200000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
-            { matchId: "M_004", stage: "Group B", team1: "France", team2: "Brazil", time: new Date(Date.now() + 345600000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
-            { matchId: "M_005", stage: "Group C", team1: "Argentina", team2: "Italy", time: new Date(Date.now() + 432000000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
-            { matchId: "M_006", stage: "Group C", team1: "Spain", team2: "Germany", time: new Date(Date.now() + 518400000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
-            { matchId: "M_007", stage: "Group D", team1: "Portugal", team2: "Uruguay", time: new Date(Date.now() + 604800000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" },
-            { matchId: "M_008", stage: "Group D", team1: "Belgium", team2: "Morocco", time: new Date(Date.now() + 691200000).toISOString(), status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "" }
+            { matchId: "M_2026_01", stage: "Group Stage", team1: "Canada", team2: "Bosnia and Herzegovina", time: "2026-06-13T00:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_02", stage: "Group Stage", team1: "USA", team2: "Paraguay", time: "2026-06-13T06:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_03", stage: "Group Stage", team1: "Qatar", team2: "Switzerland", time: "2026-06-14T00:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_04", stage: "Group Stage", team1: "Brazil", team2: "Morocco", time: "2026-06-14T03:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_05", stage: "Group Stage", team1: "Argentina", team2: "Ghana", time: "2026-06-15T18:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_06", stage: "Group Stage", team1: "Germany", team2: "Australia", time: "2026-06-15T21:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_07", stage: "Group Stage", team1: "France", team2: "Saudi Arabia", time: "2026-06-16T15:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_08", stage: "Group Stage", team1: "Spain", team2: "Japan", time: "2026-06-16T19:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_09", stage: "Group Stage", team1: "Mexico", team2: "South Africa", time: "2026-06-17T01:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_10", stage: "Group Stage", team1: "England", team2: "Ecuador", time: "2026-06-17T04:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_11", stage: "Group Stage", team1: "Italy", team2: "Cameroon", time: "2026-06-17T18:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_12", stage: "Group Stage", team1: "Netherlands", team2: "South Korea", time: "2026-06-17T21:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_13", stage: "Group Stage", team1: "Portugal", team2: "Tunisia", time: "2026-06-18T15:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_14", stage: "Group Stage", team1: "Uruguay", team2: "Iran", time: "2026-06-18T18:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_15", stage: "Group Stage", team1: "Belgium", team2: "Peru", time: "2026-06-18T23:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_16", stage: "Group Stage", team1: "Croatia", team2: "Costa Rica", time: "2026-06-19T02:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_17", stage: "Group Stage", team1: "Canada", team2: "Switzerland", time: "2026-06-19T18:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_18", stage: "Group Stage", team1: "Qatar", team2: "Bosnia and Herzegovina", time: "2026-06-19T21:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_19", stage: "Group Stage", team1: "USA", team2: "Morocco", time: "2026-06-20T15:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_20", stage: "Group Stage", team1: "Brazil", team2: "Paraguay", time: "2026-06-20T18:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_21", stage: "Group Stage", team1: "Argentina", team2: "Australia", time: "2026-06-21T00:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_22", stage: "Group Stage", team1: "Germany", team2: "Ghana", time: "2026-06-21T03:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_23", stage: "Group Stage", team1: "France", team2: "Japan", time: "2026-06-21T18:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_24", stage: "Group Stage", team1: "Spain", team2: "Saudi Arabia", time: "2026-06-21T21:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_25", stage: "Group Stage", team1: "Mexico", team2: "Ecuador", time: "2026-06-22T15:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_26", stage: "Group Stage", team1: "England", team2: "South Africa", time: "2026-06-22T18:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_27", stage: "Group Stage", team1: "Italy", team2: "South Korea", time: "2026-06-22T23:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_28", stage: "Group Stage", team1: "Netherlands", team2: "Cameroon", time: "2026-06-23T02:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_29", stage: "Group Stage", team1: "Portugal", team2: "Iran", time: "2026-06-23T18:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_30", stage: "Group Stage", team1: "Uruguay", team2: "Tunisia", time: "2026-06-23T21:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_31", stage: "Group Stage", team1: "Belgium", team2: "Costa Rica", time: "2026-06-24T15:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_32", stage: "Group Stage", team1: "Croatia", team2: "Peru", time: "2026-06-24T18:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_33", stage: "Group Stage", team1: "Canada", team2: "Qatar", time: "2026-06-25T00:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_34", stage: "Group Stage", team1: "Switzerland", team2: "Bosnia and Herzegovina", time: "2026-06-25T03:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_35", stage: "Group Stage", team1: "USA", team2: "Brazil", time: "2026-06-25T18:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_36", stage: "Group Stage", team1: "Morocco", team2: "Paraguay", time: "2026-06-25T21:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_37", stage: "Group Stage", team1: "Argentina", team2: "Germany", time: "2026-06-26T15:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_38", stage: "Group Stage", team1: "Australia", team2: "Ghana", time: "2026-06-26T18:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_39", stage: "Group Stage", team1: "France", team2: "Spain", time: "2026-06-26T23:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_40", stage: "Group Stage", team1: "Japan", team2: "Saudi Arabia", time: "2026-06-27T02:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_41", stage: "Group Stage", team1: "Mexico", team2: "England", time: "2026-06-27T18:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_42", stage: "Group Stage", team1: "Ecuador", team2: "South Africa", time: "2026-06-27T21:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_43", stage: "Group Stage", team1: "Italy", team2: "Netherlands", time: "2026-06-28T15:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_44", stage: "Group Stage", team1: "South Korea", team2: "Cameroon", time: "2026-06-28T18:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_45", stage: "Group Stage", team1: "Portugal", team2: "Uruguay", time: "2026-06-28T23:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_46", stage: "Group Stage", team1: "Iran", team2: "Tunisia", time: "2026-06-29T02:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_47", stage: "Group Stage", team1: "Belgium", team2: "Croatia", time: "2026-06-29T18:00:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" },
+            { matchId: "M_2026_48", stage: "Group Stage", team1: "Costa Rica", team2: "Peru", time: "2026-06-29T21:30:00Z", status: "Open", t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: "" }
           ]));
 
           localStorage.setItem("fifa_predictions", JSON.stringify([]));
@@ -1758,7 +1846,8 @@
                   t1Goals: m.t1Goals !== "" ? parseInt(m.t1Goals) : null,
                   t2Goals: m.t2Goals !== "" ? parseInt(m.t2Goals) : null,
                   winner: m.winner,
-                  ratings: m.ratings
+                  ratings: m.ratings,
+                  wagerPlayers: m.wagerPlayers || ""
                 }));
                 resolve(list);
               }).catch(reject);
@@ -1890,7 +1979,7 @@
 
           case 'submitPlayerBet':
             return new Promise((resolve, reject) => {
-              let [userId, matchId, playerName, wagerAmount] = args;
+              let [userId, matchId, p1, p2, p3, wagerAmount] = args;
               wagerAmount = parseFloat(wagerAmount);
 
               firebaseDB.ref("users/" + userId).once("value").then(userSnap => {
@@ -1907,12 +1996,12 @@
                   let matchTime = new Date(match.time);
                   let now = new Date();
 
-                  if (!matchOpen) return reject(new Error("Betting closed! Match is locked or finished."));
-                  if (match.status === "Live" && (now.getTime() - matchTime.getTime() > 105 * 60 * 1000)) {
-                    return reject(new Error("Wager locked! Match is near completion."));
-                  }
-                  if (match.status === "Open" && now >= matchTime) {
-                    return reject(new Error("Match kickoff has passed."));
+                  if (!matchOpen) return reject(new Error("Wager closed! Match status is locked or finished."));
+                  
+                  // Wagers lock exactly 15 minutes after kickoff (grace period)
+                  let wagerLockTime = new Date(matchTime.getTime() + (15 * 60 * 1000));
+                  if (now > wagerLockTime) {
+                    return reject(new Error("Wager locked! Wagers can only be placed up to 15 minutes after kickoff."));
                   }
 
                   let newCoins = currentCoins - wagerAmount;
@@ -1923,12 +2012,14 @@
                     betId: betId,
                     userId: userId,
                     matchId: matchId,
-                    playerName: playerName,
+                    p1: p1,
+                    p2: p2,
+                    p3: p3,
                     wager: wagerAmount,
                     status: "Pending",
                     earnings: ""
                   }).then(() => {
-                    resolve("Bet placed successfully!");
+                    resolve("Wager placed successfully!");
                   }).catch(reject);
                 });
               });
@@ -1942,7 +2033,9 @@
                 let userBets = Object.values(betsObj).filter(b => b.userId === userId).map(b => ({
                   betId: b.betId,
                   matchId: b.matchId,
-                  playerName: b.playerName,
+                  p1: b.p1,
+                  p2: b.p2,
+                  p3: b.p3,
                   wager: parseFloat(b.wager),
                   status: b.status,
                   earnings: b.earnings !== "" ? parseFloat(b.earnings) : 0
@@ -1988,7 +2081,7 @@
 
           case 'adminAddOrEditMatch':
             return new Promise((resolve, reject) => {
-              let [matchId, stage, team1, team2, timeStr, status] = args;
+              let [matchId, stage, team1, team2, timeStr, status, wagerPlayers] = args;
 
               firebaseDB.ref("matches/" + matchId).once("value").then(snapshot => {
                 let existing = snapshot.val() || {};
@@ -2002,13 +2095,87 @@
                   t1Goals: existing.t1Goals !== undefined ? existing.t1Goals : "",
                   t2Goals: existing.t2Goals !== undefined ? existing.t2Goals : "",
                   winner: existing.winner !== undefined ? existing.winner : "",
-                  ratings: existing.ratings !== undefined ? existing.ratings : ""
+                  ratings: existing.ratings !== undefined ? existing.ratings : "",
+                  wagerPlayers: wagerPlayers !== undefined ? wagerPlayers : (existing.wagerPlayers || "")
                 };
 
                 firebaseDB.ref("matches/" + matchId).set(updatedMatch).then(() => {
                   resolve("Match saved successfully!");
                 }).catch(reject);
               });
+            });
+
+          case 'adminBulkImportMatches':
+            return new Promise((resolve, reject) => {
+              let [csvText] = args;
+              if (!csvText) return reject(new Error("Import data is empty"));
+
+              const rows = csvText.split("\n");
+              let imported = 0;
+              let skipped = 0;
+
+              firebaseDB.ref("matches").once("value").then(snapshot => {
+                let existingMatches = snapshot.val() || {};
+                let existingIds = Object.keys(existingMatches).map(id => id.toLowerCase());
+
+                let promises = [];
+                rows.forEach(row => {
+                  if (!row.trim()) return;
+
+                  let parts = row.split("\t");
+                  if (parts.length < 5) {
+                    parts = row.split(",");
+                  }
+
+                  if (parts.length < 5) {
+                    skipped++;
+                    return;
+                  }
+
+                  const matchId = parts[0].trim();
+                  if (matchId.toLowerCase() === "match_id" || existingIds.indexOf(matchId.toLowerCase()) !== -1) {
+                    skipped++;
+                    return;
+                  }
+
+                  const stage = parts[1].trim();
+                  const team1 = parts[2].trim();
+                  const team2 = parts[3].trim();
+
+                  let timeStr = parts[4].trim();
+                  if (timeStr.indexOf("T") === -1) {
+                    timeStr = timeStr.replace(" ", "T") + "Z";
+                  }
+
+                  const status = parts[5] ? parts[5].trim() : "Open";
+                  const t1Goals = parts[6] ? parts[6].trim() : "";
+                  const t2Goals = parts[7] ? parts[7].trim() : "";
+                  const winner = parts[8] ? parts[8].trim() : "";
+                  const ratings = parts[9] ? parts[9].trim() : "";
+                  const wagerPlayers = parts[10] ? parts[10].trim() : "";
+
+                  let newMatch = {
+                    matchId: matchId,
+                    stage: stage,
+                    team1: team1,
+                    team2: team2,
+                    time: timeStr,
+                    status: status,
+                    t1Goals: t1Goals,
+                    t2Goals: t2Goals,
+                    winner: winner,
+                    ratings: ratings,
+                    wagerPlayers: wagerPlayers
+                  };
+
+                  promises.push(firebaseDB.ref("matches/" + matchId).set(newMatch));
+                  imported++;
+                });
+
+                Promise.all(promises).then(() => {
+                  resolve(`Import complete! ${imported} matches imported, ${skipped} skipped/headers.`);
+                }).catch(reject);
+              }).catch(reject);
             });
 
           case 'adminSaveSystemRules':
@@ -2091,13 +2258,11 @@
                   }
                 });
 
-                let ratings = {};
+                let actualTopPlayers = [];
                 if (playerRatingsStr) {
-                  playerRatingsStr.split(",").forEach(pair => {
-                    let parts = pair.split(":");
-                    if (parts.length === 2) {
-                      ratings[parts[0].trim()] = parseFloat(parts[1].trim());
-                    }
+                  playerRatingsStr.split(",").forEach(item => {
+                    let name = item.split(":")[0].trim().toLowerCase();
+                    if (name) actualTopPlayers.push(name);
                   });
                 }
 
@@ -2105,14 +2270,21 @@
                   if (bet.matchId === matchId) {
                     let prevEarnings = parseFloat(bet.earnings) || 0;
                     let wager = parseFloat(bet.wager) || 0;
+                    let p1 = (bet.p1 || "").toString().toLowerCase().trim();
+                    let p2 = (bet.p2 || "").toString().toLowerCase().trim();
+                    let p3 = (bet.p3 || "").toString().toLowerCase().trim();
                     let newStatus = "Pending";
                     let coinsEarned = 0;
 
-                    if (ratings[bet.playerName] !== undefined) {
-                      let rating = ratings[bet.playerName];
-                      if (rating >= 7.0) {
+                    if (actualTopPlayers.length > 0) {
+                      let multiplier = 0;
+                      if (actualTopPlayers.indexOf(p1) !== -1) multiplier += 3.0;
+                      if (actualTopPlayers.indexOf(p2) !== -1) multiplier += 2.0;
+                      if (actualTopPlayers.indexOf(p3) !== -1) multiplier += 1.5;
+                      
+                      if (multiplier > 0) {
                         newStatus = "Won";
-                        coinsEarned = Math.round(wager * (rating - 6.0));
+                        coinsEarned = Math.round(wager * multiplier);
                       } else {
                         newStatus = "Lost";
                         coinsEarned = 0;
@@ -2364,7 +2536,7 @@
             return "Prediction saved successfully!";
 
           case 'submitPlayerBet':
-            let [bUser, bMatch, pName, wager] = args;
+            let [bUser, bMatch, p1, p2, p3, wager] = args;
             let bUsers = MOCK_DB.getTable("fifa_users");
             let bUsrObj = bUsers.find(u => u.userId === bUser);
 
@@ -2375,15 +2547,15 @@
             if (!bMObj) throw new Error("Match not found!");
 
             let bOpen = (bMObj.status === "Open" || bMObj.status === "Live");
-            if (!bOpen) throw new Error("Betting closed! Match is locked or finished.");
+            if (!bOpen) throw new Error("Wager closed! Match status is locked or finished.");
 
             const bNow = new Date();
             const bMatchTime = new Date(bMObj.time);
-            if (bMObj.status === "Live" && (bNow.getTime() - bMatchTime.getTime() > 105 * 60 * 1000)) {
-              throw new Error("Wager locked! Match is near completion.");
-            }
-            if (bMObj.status === "Open" && bNow >= bMatchTime) {
-              throw new Error("Match kickoff has passed.");
+            
+            // Wagers lock exactly 15 minutes after kickoff (grace period)
+            let wagerLockTime = new Date(bMatchTime.getTime() + (15 * 60 * 1000));
+            if (bNow > wagerLockTime) {
+              throw new Error("Wager locked! Wagers can only be placed up to 15 minutes after kickoff.");
             }
 
             bUsrObj.coins -= wager;
@@ -2394,13 +2566,15 @@
               betId: "B_" + Math.random().toString(36).substr(2, 9),
               userId: bUser,
               matchId: bMatch,
-              playerName: pName,
+              p1: p1,
+              p2: p2,
+              p3: p3,
               wager: parseFloat(wager),
               status: "Pending",
               earnings: 0
             });
             MOCK_DB.setTable("fifa_bets", allBets);
-            return "Bet placed successfully!";
+            return "Wager placed successfully!";
 
           case 'getUserBets':
             let [uId] = args;
@@ -2432,10 +2606,10 @@
             return "User updated!";
 
           case 'adminAddOrEditMatch':
-            let [amId, amStage, amT1, amT2, amTime, amStatus] = args;
+            let [amId, amStage, amT1, amT2, amTime, amStatus, amWagerPlayers] = args;
             let amMatches = MOCK_DB.getTable("fifa_matches");
             let mIdx = amMatches.findIndex(m => m.matchId === amId);
-            let matchEntry = { matchId: amId, stage: amStage, team1: amT1, team2: amT2, time: amTime, status: amStatus, t1Goals: null, t2Goals: null, winner: null, ratings: "" };
+            let matchEntry = { matchId: amId, stage: amStage, team1: amT1, team2: amT2, time: amTime, status: amStatus, t1Goals: null, t2Goals: null, winner: null, ratings: "", wagerPlayers: amWagerPlayers || "" };
 
             if (mIdx !== -1) {
               matchEntry.t1Goals = amMatches[mIdx].t1Goals;
@@ -2448,6 +2622,71 @@
             }
             MOCK_DB.setTable("fifa_matches", amMatches);
             return "Match saved!";
+
+          case 'adminBulkImportMatches':
+            let [csvText] = args;
+            if (!csvText) throw new Error("Import data is empty");
+            let bulkMatches = MOCK_DB.getTable("fifa_matches") || [];
+            let existingIds = bulkMatches.map(m => m.matchId.toLowerCase());
+            
+            let rows = csvText.split("\n");
+            let imported = 0;
+            let skipped = 0;
+            
+            rows.forEach(row => {
+              if (!row.trim()) return;
+              
+              let parts = row.split("\t");
+              if (parts.length < 5) {
+                parts = row.split(",");
+              }
+              
+              if (parts.length < 5) {
+                skipped++;
+                return;
+              }
+              
+              const matchId = parts[0].trim();
+              if (matchId.toLowerCase() === "match_id" || existingIds.indexOf(matchId.toLowerCase()) !== -1) {
+                skipped++;
+                return;
+              }
+              
+              const stage = parts[1].trim();
+              const team1 = parts[2].trim();
+              const team2 = parts[3].trim();
+              
+              let timeStr = parts[4].trim();
+              if (timeStr.indexOf("T") === -1) {
+                timeStr = timeStr.replace(" ", "T") + "Z";
+              }
+              
+              const status = parts[5] ? parts[5].trim() : "Open";
+              const t1Goals = parts[6] ? parts[6].trim() : "";
+              const t2Goals = parts[7] ? parts[7].trim() : "";
+              const winner = parts[8] ? parts[8].trim() : "";
+              const ratings = parts[9] ? parts[9].trim() : "";
+              const wagerPlayers = parts[10] ? parts[10].trim() : "";
+              
+              bulkMatches.push({
+                matchId: matchId,
+                stage: stage,
+                team1: team1,
+                team2: team2,
+                time: timeStr,
+                status: status,
+                t1Goals: t1Goals !== "" ? parseInt(t1Goals) : null,
+                t2Goals: t2Goals !== "" ? parseInt(t2Goals) : null,
+                winner: winner || null,
+                ratings: ratings || "",
+                wagerPlayers: wagerPlayers || ""
+              });
+              
+              imported++;
+            });
+            
+            MOCK_DB.setTable("fifa_matches", bulkMatches);
+            return `Import complete! ${imported} matches imported, ${skipped} skipped/headers.`;
 
           case 'adminSaveSystemRules':
             let [rulesMap] = args;
@@ -2507,11 +2746,11 @@
             });
             MOCK_DB.setTable("fifa_predictions", allPredList);
 
-            let ratingsMap = {};
+            let actualTopPlayers = [];
             if (sRatings) {
-              sRatings.split(",").forEach(pair => {
-                let parts = pair.split(":");
-                if (parts.length === 2) ratingsMap[parts[0].trim()] = parseFloat(parts[1].trim());
+              sRatings.split(",").forEach(item => {
+                let name = item.split(":")[0].trim().toLowerCase();
+                if (name) actualTopPlayers.push(name);
               });
             }
 
@@ -2522,11 +2761,19 @@
               if (b.matchId === smId) {
                 let prevEarn = b.earnings || 0;
                 let coins = 0;
-                if (ratingsMap[b.playerName] !== undefined) {
-                  let rating = ratingsMap[b.playerName];
-                  if (rating >= 7.0) {
+                let p1 = (b.p1 || "").toString().toLowerCase().trim();
+                let p2 = (b.p2 || "").toString().toLowerCase().trim();
+                let p3 = (b.p3 || "").toString().toLowerCase().trim();
+                
+                if (actualTopPlayers.length > 0) {
+                  let multiplier = 0;
+                  if (actualTopPlayers.indexOf(p1) !== -1) multiplier += 3.0;
+                  if (actualTopPlayers.indexOf(p2) !== -1) multiplier += 2.0;
+                  if (actualTopPlayers.indexOf(p3) !== -1) multiplier += 1.5;
+                  
+                  if (multiplier > 0) {
                     b.status = "Won";
-                    coins = Math.round(b.wager * (rating - 6.0));
+                    coins = Math.round(b.wager * multiplier);
                   } else {
                     b.status = "Lost";
                     coins = 0;
@@ -2739,6 +2986,30 @@
           const liveMatches = matches.filter(m => m.status === 'Live');
           const ticker = document.getElementById("live-ticker");
 
+          // Active Wager Banner check
+          const now = new Date();
+          const activeWagerMatch = matches.find(m => {
+            if (!m.wagerPlayers || m.wagerPlayers.trim() === "") return false;
+            if (m.status !== 'Open' && m.status !== 'Live') return false;
+            
+            const matchTime = new Date(m.time);
+            const wagerLockTime = new Date(matchTime.getTime() + (15 * 60 * 1000));
+            return now <= wagerLockTime;
+          });
+
+          const banner = document.getElementById("wager-banner");
+          if (banner) {
+            if (activeWagerMatch) {
+              banner.style.display = "flex";
+              const bannerText = document.getElementById("wager-banner-text");
+              if (bannerText) {
+                bannerText.innerText = `Pick your Top 3 players for ${activeWagerMatch.team1} vs ${activeWagerMatch.team2} now! (Grace period closes 15 mins after kickoff)`;
+              }
+            } else {
+              banner.style.display = "none";
+            }
+          }
+
           if (liveMatches.length === 0) {
             ticker.innerHTML = '<div style="color:var(--text-muted); font-size:13px; padding: 10px;">No live matches currently.</div>';
           } else {
@@ -2860,7 +3131,16 @@
           const userPredMap = {};
           timeline.forEach(t => { userPredMap[t.matchId] = t; });
 
-          const upcoming = matches.filter(m => m.status === 'Open' || m.status === 'Locked' || m.status === 'Live');
+          const upcoming = matches.filter(m => {
+            if (m.status !== 'Open' && m.status !== 'Locked' && m.status !== 'Live') return false;
+            const matchDate = new Date(m.time);
+            const now = new Date();
+            const matchDateOnly = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
+            const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const diffTime = matchDateOnly.getTime() - todayOnly.getTime();
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays === 0 || diffDays === 1;
+          });
           if (upcoming.length === 0) {
             listContainer.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding: 20px;">No upcoming fixtures available for predictions.</div>';
             return;
@@ -2973,107 +3253,99 @@
      * Coin Betting View logic
      */
     function loadBettingData() {
-      document.getElementById("bet-balance-hint").innerText = `Your Wallet: ${Math.round(currentUserSession.coins)} 🪙`;
+      document.getElementById("bet-balance-hint").innerText = `Your Wallet: ${Math.round(currentUserSession.coins)} dYT`;
 
       server.call('getMatchesData', [], function (matches) {
-        const upcoming = matches.filter(m => m.status === 'Open' || m.status === 'Live');
-        const sel = document.getElementById("bet-match-select");
+        const now = new Date();
+        const wagerMatches = matches.filter(m => {
+          if (!m.wagerPlayers || m.wagerPlayers.trim() === "") return false;
+          if (m.status !== 'Open' && m.status !== 'Live') return false;
+          const matchTime = new Date(m.time);
+          const wagerLockTime = new Date(matchTime.getTime() + (15 * 60 * 1000));
+          return now <= wagerLockTime;
+        });
 
-        if (upcoming.length === 0) {
-          sel.innerHTML = '<option value="">-- No matches open for betting --</option>';
-          document.getElementById("bet-team-select").innerHTML = '<option value="">-- No matches --</option>';
-          document.getElementById("bet-player-select").innerHTML = '<option value="">-- No matches --</option>';
+        const sel = document.getElementById("bet-match-select");
+        const formContainer = document.getElementById("wager-form-container");
+        const noMatchesMsg = document.getElementById("wager-no-matches-msg");
+
+        if (wagerMatches.length === 0) {
+          formContainer.style.display = "none";
+          noMatchesMsg.style.display = "block";
+          sel.innerHTML = '<option value="">-- No matches open for wagers --</option>';
           return;
         }
 
+        formContainer.style.display = "block";
+        noMatchesMsg.style.display = "none";
+        
         sel.innerHTML = '<option value="">-- Select Fixture --</option>' +
-          upcoming.map(m => `<option value="${m.matchId}">${m.team1} vs ${m.team2} (${m.status})</option>`).join("");
+          wagerMatches.map(m => `<option value="${m.matchId}">${m.team1} vs ${m.team2} (${m.status})</option>`).join("");
       });
 
       server.call('getUserBets', [currentUserSession.userId], function (bets) {
         const tbody = document.querySelector("#user-bets-table tbody");
         if (bets.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No player performance bets placed yet.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No player wagers placed yet.</td></tr>';
           return;
         }
 
         tbody.innerHTML = bets.map(b => `
           <tr>
             <td><strong>Match ID: ${b.matchId}</strong></td>
-            <td><span class="player-bet-badge">${b.playerName}</span></td>
-            <td>${b.wager} 🪙</td>
+            <td><span class="player-bet-badge">${b.p1}</span></td>
+            <td><span class="player-bet-badge" style="background:rgba(255,255,255,0.05);">${b.p2}</span></td>
+            <td><span class="player-bet-badge" style="background:rgba(255,255,255,0.02);">${b.p3}</span></td>
+            <td>${b.wager} dYT</td>
             <td><span class="status-badge ${b.status.toLowerCase()}">${b.status}</span></td>
             <td style="font-weight:700; color: ${b.earnings > 0 ? 'var(--success)' : 'var(--text-muted)'};">
-              ${b.earnings > 0 ? '+' + b.earnings + ' 🪙' : b.earnings + ' 🪙'}
+              ${b.earnings > 0 ? '+' + b.earnings + ' dYT' : b.earnings + ' dYT'}
             </td>
           </tr>
         `).join("");
       });
     }
 
-    function loadMatchLineups(matchId) {
-      if (!matchId) return;
-      activeMatchLineups = null;
-
+    function onWagerMatchChange(matchId) {
+      if (!matchId) {
+        document.getElementById("wager-player-p1").innerHTML = '<option value="">-- Choose Player --</option>';
+        document.getElementById("wager-player-p2").innerHTML = '<option value="">-- Choose Player --</option>';
+        document.getElementById("wager-player-p3").innerHTML = '<option value="">-- Choose Player --</option>';
+        return;
+      }
+      
       server.call('getMatchesData', [], function (matches) {
         const matchObj = matches.find(m => m.matchId === matchId);
-        const teamSel = document.getElementById("bet-team-select");
-
-        teamSel.innerHTML = `
-          <option value="">-- Select Team --</option>
-          <option value="${matchObj.team1}">${matchObj.team1}</option>
-          <option value="${matchObj.team2}">${matchObj.team2}</option>
-        `;
-        document.getElementById("bet-player-select").innerHTML = '<option value="">-- Choose Team First --</option>';
-
-        server.call('getLiveMatchDetails', [matchId], function (res) {
-          if (res && res.lineups && res.lineups.length > 0) {
-            activeMatchLineups = res.lineups;
-            console.log("Loaded live lineups from API:", activeMatchLineups);
-          }
-        });
+        if (!matchObj || !matchObj.wagerPlayers) return;
+        
+        const players = matchObj.wagerPlayers.split(",").map(p => p.trim()).filter(p => p);
+        const optionsHtml = '<option value="">-- Choose Player --</option>' + 
+          players.map(p => `<option value="${p}">${p}</option>`).join("");
+          
+        document.getElementById("wager-player-p1").innerHTML = optionsHtml;
+        document.getElementById("wager-player-p2").innerHTML = optionsHtml;
+        document.getElementById("wager-player-p3").innerHTML = optionsHtml;
       });
-    }
-
-    function filterPlayersByTeam(teamName) {
-      const playerSel = document.getElementById("bet-player-select");
-      if (!teamName) {
-        playerSel.innerHTML = '<option value="">-- Choose Team First --</option>';
-        return;
-      }
-
-      let players = [];
-      if (activeMatchLineups) {
-        const teamLineup = activeMatchLineups.find(t => t.team.toLowerCase() === teamName.toLowerCase());
-        if (teamLineup && teamLineup.players) {
-          players = teamLineup.players.map(p => p.name);
-        }
-      }
-
-      if (players.length === 0) {
-        players = TEAM_PLAYER_LINEUPS[teamName] || [];
-      }
-
-      if (players.length === 0) {
-        playerSel.innerHTML = '<option value="">-- Lineup Unavailable --</option>';
-        return;
-      }
-
-      playerSel.innerHTML = `<option value="">-- Select Player --</option>` +
-        players.map(p => `<option value="${p}">${p}</option>`).join("");
     }
 
     function placePlayerBet() {
       const matchId = document.getElementById("bet-match-select").value;
-      const playerName = document.getElementById("bet-player-select").value;
+      const p1 = document.getElementById("wager-player-p1").value;
+      const p2 = document.getElementById("wager-player-p2").value;
+      const p3 = document.getElementById("wager-player-p3").value;
       const coins = parseFloat(document.getElementById("bet-coin-amount").value);
 
-      if (!matchId || !playerName || isNaN(coins) || coins <= 0) {
-        alert("Please select a match, player, and valid coins wager amount.");
+      if (!matchId || !p1 || !p2 || !p3 || isNaN(coins) || coins <= 0) {
+        alert("Please fulfill match selection, 3 player priorities, and wager amount.");
+        return;
+      }
+      
+      if (p1 === p2 || p1 === p3 || p2 === p3) {
+        alert("You must choose three different players for your priorities!");
         return;
       }
 
-      server.call('submitPlayerBet', [currentUserSession.userId, matchId, playerName, coins], function (res) {
+      server.call('submitPlayerBet', [currentUserSession.userId, matchId, p1, p2, p3, coins], function (res) {
         alert(res);
         server.call('getActiveUserSession', [], function (session) {
           currentUserSession = session;
@@ -3266,6 +3538,7 @@
       const t2 = document.getElementById("admin-match-t2").value.trim();
       const time = document.getElementById("admin-match-time").value;
       const status = document.getElementById("admin-match-status").value;
+      const wagerPlayers = document.getElementById("admin-match-wager-players").value.trim();
 
       if (!id || !t1 || !t2 || !time) {
         alert("Please complete Match ID, Teams, and Kickoff Time.");
@@ -3274,10 +3547,26 @@
 
       const isoTime = new Date(time).toISOString();
 
-      server.call('adminAddOrEditMatch', [id, stage, t1, t2, isoTime, status], function (res) {
+      server.call('adminAddOrEditMatch', [id, stage, t1, t2, isoTime, status, wagerPlayers], function (res) {
         alert(res);
         loadAdminData();
       }, function (err) { alert(err.message); });
+    }
+
+    function adminBulkImport() {
+      const csvText = document.getElementById("admin-bulk-matches-textarea").value.trim();
+      if (!csvText) {
+        alert("Please paste some schedule data first!");
+        return;
+      }
+
+      server.call('adminBulkImportMatches', [csvText], function (res) {
+        alert(res);
+        document.getElementById("admin-bulk-matches-textarea").value = "";
+        loadAdminData();
+      }, function (err) {
+        alert("Error during bulk import: " + err.message);
+      });
     }
 
     function loadMatchScoresToFields(matchId) {
@@ -3295,6 +3584,23 @@
           <option value="${match.team2}" ${match.winner === match.team2 ? 'selected' : ''}>${match.team2} wins</option>
           <option value="Draw" ${match.winner === 'Draw' ? 'selected' : ''}>Draw</option>
         `;
+
+        // Also load details into Create/Modify match form for easy editing
+        document.getElementById("admin-match-id").value = match.matchId;
+        document.getElementById("admin-match-stage").value = match.stage || "";
+        document.getElementById("admin-match-t1").value = match.team1;
+        document.getElementById("admin-match-t2").value = match.team2;
+        
+        if (match.time) {
+          const date = new Date(match.time);
+          const pad = (num) => String(num).padStart(2, '0');
+          const localStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+          document.getElementById("admin-match-time").value = localStr;
+        } else {
+          document.getElementById("admin-match-time").value = "";
+        }
+        document.getElementById("admin-match-status").value = match.status || "Open";
+        document.getElementById("admin-match-wager-players").value = match.wagerPlayers || "";
       });
     }
 
